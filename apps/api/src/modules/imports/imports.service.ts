@@ -113,7 +113,8 @@ export class ImportsService {
       const evidence = await insertSourceEvidence(m, manifest.source, this.deploymentMode.dataMode, now);
       const rows = batch.parsedRows as StoredRow[];
       const revisionId = randomUUID();
-      const contentHash = this.revisions.computeContentHash({ snapshot, ruleVersionId: rule.id, completeness: manifest.completeness, categories: manifest.categories, entries: rows.map((r) => ({ categoryCode: r.categoryCode, series: r.series, number: r.number })), evidenceIds: [evidence.id] });
+      const categories = manifest.categories.map((c) => ({ code: c.code, state: c.state, amountMinor: c.amountMinor ?? null }));
+      const contentHash = this.revisions.computeContentHash({ snapshot, ruleVersionId: rule.id, completeness: manifest.completeness, categories, entries: rows.map((r) => ({ categoryCode: r.categoryCode, series: r.series, number: r.number })), evidenceIds: [evidence.id] });
       await m.insert(ResultRevisionEntity, {
         id: revisionId, drawId: draw.id, lotteryId: draw.lotteryId, ruleVersionId: rule.id, revisionNo: draw.nextRevisionNo, drawSnapshot: snapshot, basedOnRevisionId: draw.currentRevisionId,
         workflowState: 'DRAFT', publicationKind: manifest.publicationKind, completeness: manifest.completeness, contentHash, reviewedHash: null, reviewedBy: null, reviewedAt: null,
