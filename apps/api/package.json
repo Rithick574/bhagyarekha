@@ -5,7 +5,7 @@
   "description": "BhagyaRekha NestJS API — modular monolith over PostgreSQL",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "pnpm --filter \"@bhagyarekha/api^...\" run build && tsc -p tsconfig.build.json",
     "dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node --enable-source-maps dist/main.js\"",
     "start": "node --enable-source-maps dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
