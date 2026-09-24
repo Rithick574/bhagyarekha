@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { ZodType } from 'zod';
 import {
   API_PREFIX,
@@ -57,9 +58,9 @@ export function listLotteries(params: { active?: boolean } = {}): Promise<ApiRes
   return request('/lotteries', LotteryListResponseSchema, { active: params.active === undefined ? undefined : String(params.active) });
 }
 
-export function getLatest(lotteryId?: string): Promise<ApiResult<LatestResponse>> {
+export const getLatest = cache((lotteryId?: string): Promise<ApiResult<LatestResponse>> => {
   return request('/draws/latest', LatestResponseSchema, { lotteryId });
-}
+});
 
 export function listDraws(params: { lotteryId?: string; from?: string; to?: string; page?: number; pageSize?: number } = {}): Promise<ApiResult<DrawListResponse>> {
   return request('/draws', DrawListResponseSchema, params);
@@ -77,9 +78,16 @@ export function getReady(): Promise<ApiResult<HealthReadyResponse>> {
   return request('/health/ready', HealthReadyResponseSchema);
 }
 
-/** Resolves the deployment data mode for layout chrome. Unknown (API down) yields null; never assume demo or live. */
-export async function getDataMode(): Promise<'demo' | 'live' | null> {
+/**
+ * Deployment mode for layout chrome. Prefers readiness, which is the mode check.
+ * If that call fails while public reads still succeed, use the mode those reads
+ * declare — the same value the page is already showing. Null only when neither
+ * call yields a mode; never invent demo or live.
+ */
+export const getDataMode = cache(async (): Promise<'demo' | 'live' | null> => {
   const ready = await getReady();
-  if (ready.ok) return ready.data.dataMode;
+  if (ready.ok && ready.data.dataMode) return ready.data.dataMode;
+  const latest = await getLatest();
+  if (latest.ok) return latest.data.dataMode;
   return null;
-}
+});

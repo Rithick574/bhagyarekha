@@ -33,6 +33,8 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120_000,
       cwd: resolve(import.meta.dirname, '../..'),
+      // The suite fires many ticket checks in parallel from one address. Production stays at 30/min.
+      env: { ...process.env, RATE_LIMIT_PER_MINUTE: '100000', RATE_LIMIT_CHECK_PER_MINUTE: '100000' },
     },
     {
       command: 'pnpm --filter @bhagyarekha/web start',
@@ -40,6 +42,8 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 180_000,
       cwd: resolve(import.meta.dirname, '../..'),
+      // `next start` requires production. A shell or .env NODE_ENV must not leak into this process.
+      env: { ...process.env, NODE_ENV: 'production' },
     },
   ],
   projects: [

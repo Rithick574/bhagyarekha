@@ -19,7 +19,15 @@ export class HealthService {
     try {
       await this.dataSource.query('SELECT 1');
       checks.database = 'ok';
+    } catch {
+      // Leave database at fail; still attempt the other checks.
+    }
+    try {
       checks.migrations = (await this.deploymentMode.hasPendingMigrations()) ? 'pending' : 'ok';
+    } catch {
+      checks.migrations = 'fail';
+    }
+    try {
       const dbMode = await this.deploymentMode.readDatabaseMode();
       if (dbMode === null) checks.dataMode = 'uninitialized';
       else if (dbMode !== this.env.DATA_MODE) checks.dataMode = 'mismatch';
@@ -28,7 +36,7 @@ export class HealthService {
         dataMode = dbMode;
       }
     } catch {
-      // Individual checks stay at their failure value; nothing else to expose.
+      checks.dataMode = 'fail';
     }
     const ok = checks.database === 'ok' && checks.migrations === 'ok' && checks.dataMode === 'ok';
     return { status: ok ? 'ok' : 'fail', dataMode, checks };

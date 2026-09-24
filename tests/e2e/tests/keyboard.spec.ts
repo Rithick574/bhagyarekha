@@ -18,8 +18,10 @@ test.describe('keyboard navigation', () => {
     const brand = page.getByRole('link', { name: 'BhagyaRekha home' });
     await brand.focus();
     await expect(brand).toBeFocused();
-    // Tab through the header; every stop must have a visible focus outline.
-    for (let i = 0; i < 6; i += 1) {
+    const cta = page.getByTestId('view-all-prizes');
+    // Tab through the header to the primary action. Every stop needs a visible outline.
+    for (let i = 0; i < 20; i += 1) {
+      if (await cta.evaluate((el) => el === document.activeElement)) break;
       await page.keyboard.press('Tab');
       const outline = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement | null;
@@ -28,8 +30,6 @@ test.describe('keyboard navigation', () => {
       });
       expect(outline).not.toBe('none');
     }
-    const cta = page.getByTestId('view-all-prizes');
-    await cta.focus();
     await expect(cta).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/en\/results\//);
