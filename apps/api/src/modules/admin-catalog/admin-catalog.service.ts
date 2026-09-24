@@ -191,9 +191,16 @@ export class AdminCatalogService {
     if (!loaded) throw ApiError.notFound('NOT_FOUND', 'No such rule version');
     const compiled = loaded.ruleSet ? compileRuleSet(loaded.ruleSet) : null;
     const v = loaded.version;
+    const compileErrors = !compiled
+      ? loaded.ruleSet
+        ? []
+        : [{ code: 'INVALID_RULE_ROWS', path: '', message: 'Stored rows do not form a valid v1 rule set' }]
+      : compiled.ok
+        ? []
+        : compiled.errors;
     return {
       id: v.id, lotteryId: v.lotteryId, version: v.version, state: v.state, numberLength: v.numberLength, allowedSeries: v.allowedSeries, contentHash: v.contentHash,
-      compiles: compiled?.ok === true, compileErrors: compiled && !compiled.ok ? compiled.errors : loaded.ruleSet ? [] : [{ code: 'INVALID_RULE_ROWS', path: '', message: 'Stored rows do not form a valid v1 rule set' }],
+      compiles: compiled?.ok === true, compileErrors,
       ruleSet: loaded.ruleSet, approvedAt: v.approvedAt?.toISOString() ?? null, revokedAt: v.revokedAt?.toISOString() ?? null, revocationReason: v.revocationReason, editVersion: v.editVersion,
     };
   }
