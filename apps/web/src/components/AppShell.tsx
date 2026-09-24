@@ -29,7 +29,7 @@ export function AppShell({ locale, messages, dataMode, children }: Props) {
       </a>
 
       <header className="border-b border-line bg-card">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6 lg:flex-nowrap">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link href={`/${locale}`} aria-label={messages.a11y.brandHome} className="flex min-h-12 shrink-0 items-center gap-3 no-underline">
             <BrandMark className="h-11 w-11 shrink-0" />
             <span className="flex flex-col leading-tight">
@@ -46,7 +46,7 @@ export function AppShell({ locale, messages, dataMode, children }: Props) {
             <TextSizeControl label={messages.controls.textSize} names={{ standard: messages.controls.textStandard, large: messages.controls.textLarge, xlarge: messages.controls.textXLarge }} />
           </div>
 
-          <div className="lg:order-2 lg:flex lg:flex-1 lg:justify-center">
+          <div className="lg:order-2 lg:flex lg:min-w-0 lg:justify-center">
             <DesktopNav items={items} locale={locale} ariaLabel={messages.nav.primary} />
           </div>
         </div>

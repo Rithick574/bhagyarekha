@@ -14,6 +14,7 @@ import {
   ResultQuerySchema,
   ResultResponseSchema,
 } from './public.js';
+import { TicketCheckRequestSchema, TicketCheckResponseSchema } from './ticket-check.js';
 
 export const API_PREFIX = '/api/v1';
 
@@ -82,6 +83,15 @@ export const publicRoutes = {
     params: DrawIdParamsSchema,
     query: ResultQuerySchema,
     response: ResultResponseSchema,
+    errorStatuses: [400, 404, 409, 429, 503],
+    cache: 'no-store',
+  },
+  ticketCheck: {
+    method: 'POST',
+    path: '/ticket-check',
+    summary: 'Compare a ticket with one published revision. Ephemeral: the ticket is never stored, logged or echoed.',
+    body: TicketCheckRequestSchema,
+    response: TicketCheckResponseSchema,
     errorStatuses: [400, 404, 409, 429, 503],
     cache: 'no-store',
   },

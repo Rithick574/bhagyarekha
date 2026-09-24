@@ -116,10 +116,21 @@ export const CheckingCapabilitySchema = z.object({
 });
 export type CheckingCapability = z.infer<typeof CheckingCapabilitySchema>;
 
+/** Form hint only: the server re-validates against the checked revision's rule. */
+export const TicketFormatSchema = z.object({
+  ruleVersionId: UuidSchema,
+  numberLength: z.number().int().min(1).max(12),
+  /** Empty array means the configured rules use no series. */
+  allowedSeries: z.array(z.string()),
+});
+export type TicketFormat = z.infer<typeof TicketFormatSchema>;
+
 export const DrawDetailSchema = DrawSummarySchema.extend({
   dataMode: DataModeSchema,
   checking: CheckingCapabilitySchema,
   sources: z.array(SourceReferenceSchema),
+  /** From the current visible revision's rule, else the lottery's latest approved rule, else null. */
+  ticketFormat: TicketFormatSchema.nullable(),
 });
 export type DrawDetail = z.infer<typeof DrawDetailSchema>;
 

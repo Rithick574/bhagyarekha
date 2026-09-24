@@ -45,8 +45,29 @@ compilable ⇒ checking capability is `UNSUPPORTED` (`RULE_NOT_COMPILABLE`).
 These are engine exercises. **They are not Kerala lottery rules.** Real rules require
 source-backed, reviewed configuration before any live checking is enabled.
 
-## Checking capability in Stage 1
+## Evaluator (packages/domain, Stage 2)
 
-The evaluator ships in Stage 2. Until then every draw reports
-`checking.capability = UNSUPPORTED` / `CHECKER_NOT_AVAILABLE` (or a more specific reason:
-no published result, suspended, cancelled, rule revoked/not approved/not compilable).
+`normalizeTicketInput` trims outer whitespace and upper-cases the series. Nothing else is
+changed: internal spaces, separators, non-ASCII digits, wrong lengths are rejected with a
+field code (`EMPTY`, `DIGITS_REQUIRED`, `INTERNAL_WHITESPACE`, `LETTERS_REQUIRED`, `TOO_LONG`).
+
+`validateTicketDomain` checks the ticket against the checked revision's rule before any
+matching: `SERIES_REQUIRED` / `SERIES_NOT_ALLOWED`, `WRONG_LENGTH`, `FIRST_DIGIT_NOT_ALLOWED`.
+An invalid series therefore never reaches `EXCEPT_ENTRY`.
+
+`evaluateTicket(rules, snapshot, ticket)` works on ONE revision snapshot:
+
+1. Raw match per category (FULL_NUMBER compares the whole string; SUFFIX compares the fixed-length ending).
+2. Award = highest-priority raw match not excluded by a higher-priority raw match. One award only; amounts are never summed.
+3. If any category is not COMPLETE: `PARTIAL_MATCH` (`awardConfirmed=false`, `amountMinor=null`) when a raw match exists, otherwise `RESULT_INCOMPLETE`. `NO_MATCH` is impossible with incomplete data (INV-08/09).
+4. A revision labelled COMPLETE with a non-complete or missing category is an integrity failure → HTTP 503, never a verdict.
+
+The API (`POST /api/v1/ticket-check`) answers non-verdict states first — `DRAW_CANCELLED`,
+`RESULT_SUSPENDED`, `RESULT_NOT_PUBLISHED`, then `RULES_UNSUPPORTED` when the rule is not
+approved or does not compile — then validates the ticket domain, loads only entries whose
+number equals the ticket or one of its configured suffixes, and evaluates inside a read-only
+repeatable-read transaction. `expectedRevisionId` mismatches return 409 `RESULT_CHANGED`.
+The ticket is never stored, logged or echoed (integration test T27 inspects logs and every table).
+
+`checking.capability` on draw detail is `SUPPORTED` only for a published, active draw whose rule
+is approved and compilable.

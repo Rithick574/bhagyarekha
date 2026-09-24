@@ -13,6 +13,10 @@ export const EnvSchema = z.object({
   PUBLIC_BASE_URL: z.url(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
+  /** Requests per minute per client for public reads. */
+  RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(120),
+  /** Requests per minute per client for POST /ticket-check (LLD §7.2 proposes 30). */
+  RATE_LIMIT_CHECK_PER_MINUTE: z.coerce.number().int().min(1).default(30),
 });
 export type Env = z.infer<typeof EnvSchema>;
 

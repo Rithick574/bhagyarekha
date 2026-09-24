@@ -18,8 +18,24 @@ test.describe('results home', () => {
     await expect(card.getByText(/Published|Partially published/)).toBeVisible();
     await expect(card.getByText('Sample result')).toBeVisible();
     await expect(page.getByTestId('recent-draws')).toBeVisible();
-    await expect(page.getByTestId('check-entry-card')).toBeVisible();
+    // Desktop shows the real form for the latest draw; mobile shows the entry card.
+    const desktop = (page.viewportSize()?.width ?? 0) >= 1024;
+    await expect(page.getByTestId(desktop ? 'ticket-check-form' : 'check-entry-card')).toBeVisible();
     await expectNoHorizontalOverflow(page);
+  });
+
+  test('the desktop home form checks the latest draw in place', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop-chromium', 'the in-page form only renders at ≥1024px');
+    await page.goto('/en');
+    const form = page.getByTestId('ticket-check-form');
+    await expect(form.getByTestId('fixed-draw')).toContainText('NL-039');
+    await form.getByLabel('Series', { exact: true }).selectOption('AA');
+    await form.getByLabel('Ticket number', { exact: true }).fill('001234');
+    await form.getByTestId('check-submit').click();
+    const outcome = page.getByTestId('check-outcome');
+    await expect(outcome).toHaveAttribute('data-outcome', 'MATCH');
+    await expect(outcome.getByTestId('check-match')).toContainText('First prize');
+    expect(page.url()).not.toContain('001234');
   });
 
   test('never labels a pending draw as the published result', async ({ page, request }) => {

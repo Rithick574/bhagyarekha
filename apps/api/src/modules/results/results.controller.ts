@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   DrawIdParamsSchema,
   DrawListQuerySchema,
@@ -19,7 +20,8 @@ import {
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import { ResultReadService } from './result-read.service.js';
 
-/** Thin controllers: validate with shared contracts, delegate to the read service. */
+/** Thin controllers: validate with shared contracts, delegate to the read service. Public reads use the 'default' throttler only. */
+@SkipThrottle({ check: true })
 @Controller()
 export class ResultsController {
   constructor(private readonly reads: ResultReadService) {}

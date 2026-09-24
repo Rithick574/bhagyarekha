@@ -86,10 +86,8 @@ describe('deriveCheckingCapability', () => {
     expect(deriveCheckingCapability({ phase: 'HELD', visibility: 'ACTIVE' }, revision(), rule('DRAFT'), true).reasonCode).toBe('RULE_NOT_APPROVED');
     expect(deriveCheckingCapability({ phase: 'HELD', visibility: 'ACTIVE' }, revision(), rule('APPROVED'), false).reasonCode).toBe('RULE_NOT_COMPILABLE');
   });
-  it('does not claim SUPPORTED before the checker ships (Stage 2)', () => {
-    const cap = deriveCheckingCapability({ phase: 'HELD', visibility: 'ACTIVE' }, revision(), rule('APPROVED'), true);
-    expect(cap.capability).not.toBe('SUPPORTED');
-    expect(cap.reasonCode).toBe('CHECKER_NOT_AVAILABLE');
+  it('reports SUPPORTED only for a published, active draw with an approved compilable rule', () => {
+    expect(deriveCheckingCapability({ phase: 'HELD', visibility: 'ACTIVE' }, revision(), rule('APPROVED'), true)).toEqual({ capability: 'SUPPORTED', ruleVersionId: 'b0000001-0000-4000-8000-000000000001', reasonCode: null });
   });
 });
 

@@ -8,9 +8,8 @@ import type {
   ResultQuery,
   ResultResponse,
 } from '@bhagyarekha/contracts';
-import { RuleSetV1Schema } from '@bhagyarekha/contracts';
-import { compileRuleSet } from '@bhagyarekha/domain';
 import { DataSource, type EntityManager } from 'typeorm';
+import { RuleLoaderService } from '../rule-versions/rule-loader.service.js';
 import { ApiError } from '../../common/api-error.js';
 import { Clock } from '../../common/clock.js';
 import type { DrawEntity, ResultRevisionEntity, RevisionCategoryEntity, RuleCategoryEntity, RuleVersionEntity } from '../../database/entities/index.js';
@@ -35,6 +34,7 @@ export class ResultReadService {
     private readonly repo: ResultsRepository,
     private readonly clock: Clock,
     private readonly deploymentMode: DeploymentModeService,
+    private readonly rules: RuleLoaderService,
   ) {}
 
   async listLotteries(activeOnly: boolean | undefined): Promise<LotteryListResponse> {
@@ -77,11 +77,13 @@ export class ResultReadService {
       const visible = payloadVisible(draw, revision);
       const ruleVersion = visible ? await this.repo.findRuleVersion(m, revision.ruleVersionId) : null;
       const sources = visible ? (await this.repo.findRevisionEvidence(m, revision.id)).map(toSourceReference) : [];
+      const formatSource = ruleVersion ?? (await this.rules.findLatestApproved(m, draw.lotteryId));
       return {
         ...toDrawSummary(rows),
         dataMode: this.deploymentMode.dataMode,
         checking: deriveCheckingCapability(draw, revision, ruleVersion, ruleVersion ? await this.ruleCompiles(m, ruleVersion) : false),
         sources,
+        ticketFormat: formatSource ? { ruleVersionId: formatSource.id, numberLength: formatSource.numberLength, allowedSeries: formatSource.allowedSeries } : null,
       };
     });
   }
@@ -151,26 +153,7 @@ export class ResultReadService {
   }
 
   private async ruleCompiles(m: EntityManager, ruleVersion: RuleVersionEntity): Promise<boolean> {
-    const categories = await this.repo.findRuleCategories(m, ruleVersion.id);
-    const parsed = RuleSetV1Schema.safeParse({
-      schemaVersion: ruleVersion.schemaVersion,
-      engineVersion: ruleVersion.engineVersion,
-      lotteryCode: 'X',
-      ruleVersion: ruleVersion.version,
-      numberLength: ruleVersion.numberLength,
-      allowedFirstDigits: ruleVersion.allowedFirstDigits,
-      allowedSeries: ruleVersion.allowedSeries,
-      awardPolicy: ruleVersion.awardPolicy,
-      categories: categories.map((c) => ({
-        code: c.code,
-        labels: { en: c.labelEn, ml: c.labelMl },
-        metricRole: c.metricRole,
-        priority: c.priority,
-        match: c.matchKind === 'SUFFIX' ? { kind: 'SUFFIX', seriesPolicy: 'ANY_ALLOWED', suffixLength: c.suffixLength } : { kind: 'FULL_NUMBER', seriesPolicy: c.seriesPolicy },
-        excludedBy: c.excludedBy,
-        expectedEntryCount: c.expectedEntryCount,
-      })),
-    });
-    return parsed.success && compileRuleSet(parsed.data).ok;
+    const loaded = await this.rules.load(m, ruleVersion.id);
+    return loaded?.compiled !== null && loaded?.compiled !== undefined;
   }
 }

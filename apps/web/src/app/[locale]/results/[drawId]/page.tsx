@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { DrawDetail } from '@bhagyarekha/contracts';
 import { DrawStatusBadge, SampleBadge } from '@/components/DrawStatusBadge';
-import { ArrowLeftIcon } from '@/components/Icons';
+import { ArrowLeftIcon, SearchIcon } from '@/components/Icons';
 import { Notice } from '@/components/Notices';
 import { PrizeCategoryPanel } from '@/components/PrizeCategoryPanel';
 import { SourceEvidencePanel } from '@/components/SourceEvidencePanel';
@@ -104,6 +104,12 @@ function IdentityPanel({ draw, locale, messages, dataMode }: { draw: DrawDetail;
           </dd>
         </div>
       </dl>
+      {draw.publicationStatus !== 'CANCELLED' ? (
+        <Link href={`/${locale}/check?draw=${encodeURIComponent(draw.id)}`} data-testid="check-this-draw" className="touch-target mt-5 inline-flex items-center gap-2 rounded-control border border-line bg-card px-5 font-semibold text-primary no-underline hover:bg-primary-soft">
+          <SearchIcon className="h-5 w-5" />
+          {messages.check.checkForThisDraw}
+        </Link>
+      ) : null}
     </header>
   );
 }

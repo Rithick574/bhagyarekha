@@ -140,8 +140,7 @@ export function deriveCheckingCapability(
   if (ruleVersion.state === 'REVOKED') return { capability: 'UNSUPPORTED', ruleVersionId: ruleVersion.id, reasonCode: 'RULE_REVOKED' };
   if (ruleVersion.state !== 'APPROVED') return { capability: 'UNSUPPORTED', ruleVersionId: ruleVersion.id, reasonCode: 'RULE_NOT_APPROVED' };
   if (!ruleCompiles) return { capability: 'UNSUPPORTED', ruleVersionId: ruleVersion.id, reasonCode: 'RULE_NOT_COMPILABLE' };
-  // The ticket checker itself ships in Stage 2. Until then, capability is reported honestly.
-  return { capability: 'UNSUPPORTED', ruleVersionId: ruleVersion.id, reasonCode: 'CHECKER_NOT_AVAILABLE' };
+  return { capability: 'SUPPORTED', ruleVersionId: ruleVersion.id, reasonCode: null };
 }
 
 export function toMatchSpec(category: RuleCategoryEntity): MatchSpec {

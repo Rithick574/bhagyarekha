@@ -30,3 +30,12 @@ Prize-category labels (`labels.en` / `labels.ml`) and lottery names come from th
 | Date | Reviewer | Scope | Result |
 |---|---|---|---|
 | — | — | — | Not yet reviewed |
+
+## Stage 2 additions (ticket checking)
+
+`apps/web/src/i18n/messages/ml.ts` gained the `check.*` section (form labels, field errors,
+all eight outcome titles/bodies, transport failures, the informational reminder). These
+strings were machine-drafted by the implementer in the same pass as the English text and
+have **not** been reviewed by a native speaker. The outcome wording is legally sensitive
+(it must never read as a claim confirmation or a definitive "no prize" for incomplete
+results); a reviewer should check those meanings, not only grammar.

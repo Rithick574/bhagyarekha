@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { TicketChecker } from '@/components/check/TicketChecker';
 import { LatestResultCard } from '@/components/LatestResultCard';
 import { Notice } from '@/components/Notices';
 import { RecentDraws } from '@/components/RecentDraws';
 import { CheckTicketEntryCard, PendingDrawCard } from '@/components/SmallCards';
 import { EmptyState, UnavailableState } from '@/components/States';
 import { getMessages, isLocale } from '@/i18n';
-import { getDraw, getLatest, listDraws } from '@/lib/api';
+import { getDraw, getLatest, listDraws, listLotteries } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!isLocale(locale)) notFound();
   const messages = getMessages(locale);
 
-  const [latest, recent] = await Promise.all([getLatest(), listDraws({ pageSize: 6 })]);
+  const [latest, recent, lotteries] = await Promise.all([getLatest(), listDraws({ pageSize: 6 }), listLotteries({ active: true })]);
 
   if (!latest.ok) {
     return (
@@ -37,6 +38,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // Source reference for the latest card comes from the detail endpoint; failure there is non-fatal.
   const detail = latestPublished ? await getDraw(latestPublished.id) : null;
   const source = detail && detail.ok ? (detail.data.sources[0] ?? null) : null;
+  const latestDetail = detail && detail.ok ? detail.data : null;
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -51,7 +53,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           )}
         </div>
         <div className="flex flex-col gap-5">
-          <CheckTicketEntryCard locale={locale} messages={messages} />
+          {latestDetail && lotteries.ok ? (
+            <>
+              <div className="hidden lg:block" data-testid="home-check-form">
+                <TicketChecker locale={locale} messages={messages} lotteries={lotteries.data.items} initialDraw={latestDetail} initialDraws={[latestDetail]} fixedDraw asOfDate={asOfDate} compact />
+              </div>
+              <div className="lg:hidden">
+                <CheckTicketEntryCard locale={locale} messages={messages} drawId={latestDetail.id} />
+              </div>
+            </>
+          ) : (
+            <CheckTicketEntryCard locale={locale} messages={messages} />
+          )}
           {pendingDraw ? <PendingDrawCard draw={pendingDraw} locale={locale} messages={messages} asOfDate={asOfDate} /> : null}
         </div>
       </div>

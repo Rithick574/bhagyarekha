@@ -26,7 +26,8 @@ See `.env.example`. Secrets live in the platform's secret store, never in Git.
 ## Security posture implemented so far
 
 * Helmet headers, restrictive CORS (single configured origin), 64 kB JSON body limit,
-  in-process rate limiting (120 req/min default), `Cache-Control: no-store` on every API response.
+  in-process rate limiting (`RATE_LIMIT_PER_MINUTE`, default 120; `RATE_LIMIT_CHECK_PER_MINUTE` for ticket checks, default 30), `Cache-Control: no-store` on every API response.
+* Ticket checking is POST-only; inputs are never persisted, logged or echoed, and the browser reaches the API same-origin through a Next.js rewrite.
 * Structured logs without bodies, query values or ticket inputs. Server-generated request IDs.
 * Database immutability triggers on published payloads, approved rules, referenced evidence and the mode marker.
 
@@ -36,7 +37,7 @@ See `.env.example`. Secrets live in the platform's secret store, never in Git.
 - [ ] Rule versions approved with official scheme evidence (Stage 2 evaluator + Stage 3 admin)
 - [ ] Reviewed import → review → publish workflow live (Stage 3) with audit trail
 - [ ] Admin authentication hardened (sessions, CSRF, MFA/access layer) — Stage 3/5
-- [ ] Ticket check endpoint with completeness handling (Stage 2)
+- [x] Ticket check endpoint with completeness handling (Stage 2) — rules themselves still synthetic
 - [ ] History and statistics with coverage labels (Stage 4)
 - [ ] PWA shell, offline labelling, accessibility audit at 200% zoom (Stage 5)
 - [ ] Source reproduction/permission review; privacy notice reflecting actual hosting behaviour

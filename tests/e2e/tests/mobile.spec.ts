@@ -43,3 +43,18 @@ test.describe('mobile layout', () => {
     });
   }
 });
+
+test.describe('desktop layout', () => {
+  for (const width of [1024, 1280, 1440]) {
+    for (const locale of ['en', 'ml'] as const) {
+      test(`no horizontal overflow at ${width}px (${locale}) on home and check`, async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop-chromium', 'desktop widths only');
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/${locale}`);
+        await expectNoHorizontalOverflow(page);
+        await page.goto(`/${locale}/check?draw=d0000001-0000-4000-8000-000000000039`);
+        await expectNoHorizontalOverflow(page);
+      });
+    }
+  }
+});

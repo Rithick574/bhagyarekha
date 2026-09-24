@@ -9,12 +9,14 @@ import { buildDataSourceOptions } from './database/data-source.js';
 import { DeploymentModeModule } from './modules/deployment-mode/deployment-mode.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { ResultsModule } from './modules/results/results.module.js';
+import { TicketCheckModule } from './modules/ticket-check/ticket-check.module.js';
 
 export interface AppModuleOptions {
   env: Env;
   clock?: Clock;
-  /** Requests per minute per client before 429. Tests raise this. */
+  /** Overrides env RATE_LIMIT_PER_MINUTE / RATE_LIMIT_CHECK_PER_MINUTE (tests raise them). */
   rateLimitPerMinute?: number;
+  rateLimitCheckPerMinute?: number;
 }
 
 @Module({})
@@ -25,10 +27,14 @@ export class AppModule {
       imports: [
         ConfigModule.forRoot({ env: options.env, clock: options.clock }),
         TypeOrmModule.forRoot(buildDataSourceOptions({ databaseUrl: options.env.DATABASE_URL })),
-        ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: options.rateLimitPerMinute ?? 120 }]),
+        ThrottlerModule.forRoot([
+          { name: 'default', ttl: 60_000, limit: options.rateLimitPerMinute ?? options.env.RATE_LIMIT_PER_MINUTE },
+          { name: 'check', ttl: 60_000, limit: options.rateLimitCheckPerMinute ?? options.env.RATE_LIMIT_CHECK_PER_MINUTE },
+        ]),
         DeploymentModeModule,
         HealthModule,
         ResultsModule,
+        TicketCheckModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
     };

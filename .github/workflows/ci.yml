@@ -36,6 +36,8 @@ jobs:
       WEB_PORT: 3000
       LOG_LEVEL: warn
       TRUST_PROXY_HOPS: 0
+      RATE_LIMIT_PER_MINUTE: 100000
+      RATE_LIMIT_CHECK_PER_MINUTE: 100000
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

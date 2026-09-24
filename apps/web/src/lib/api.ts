@@ -6,9 +6,10 @@ import {
   ErrorResponseSchema,
   HealthReadyResponseSchema,
   LatestResponseSchema,
+  LotteryListResponseSchema,
   ResultResponseSchema,
 } from '@bhagyarekha/contracts';
-import type { DrawDetail, DrawListResponse, HealthReadyResponse, LatestResponse, ResultResponse } from '@bhagyarekha/contracts';
+import type { DrawDetail, DrawListResponse, HealthReadyResponse, LatestResponse, LotteryListResponse, ResultResponse } from '@bhagyarekha/contracts';
 
 export type ApiFailure =
   | { ok: false; kind: 'network' }
@@ -50,6 +51,10 @@ async function request<T>(path: string, schema: ZodType<T>, query?: Record<strin
   const parsed = schema.safeParse(body);
   if (!parsed.success) return { ok: false, kind: 'invalid-response' };
   return { ok: true, data: parsed.data };
+}
+
+export function listLotteries(params: { active?: boolean } = {}): Promise<ApiResult<LotteryListResponse>> {
+  return request('/lotteries', LotteryListResponseSchema, { active: params.active === undefined ? undefined : String(params.active) });
 }
 
 export function getLatest(lotteryId?: string): Promise<ApiResult<LatestResponse>> {

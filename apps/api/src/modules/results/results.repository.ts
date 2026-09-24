@@ -173,6 +173,12 @@ export class ResultsRepository {
     });
   }
 
+  /** Entries of one revision whose number is in `numbers` (full number or configured suffixes). Bounded by the candidate list. */
+  async findEntriesByNumbers(m: EntityManager, revisionId: string, numbers: string[]): Promise<WinningEntryEntity[]> {
+    if (numbers.length === 0) return [];
+    return m.find(WinningEntryEntity, { where: { revisionId, number: In(numbers) }, order: { id: 'ASC' } });
+  }
+
   async findRevisionEvidence(m: EntityManager, revisionId: string): Promise<SourceEvidenceEntity[]> {
     const links = await m.find(RevisionEvidenceEntity, { where: { revisionId } });
     if (links.length === 0) return [];

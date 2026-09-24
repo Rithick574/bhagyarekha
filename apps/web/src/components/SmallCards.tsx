@@ -7,9 +7,10 @@ import { statusKeyFor } from '@/lib/status';
 import { DrawStatusBadge } from './DrawStatusBadge';
 import { ArrowRightIcon, CalendarIcon, SearchIcon } from './Icons';
 
-export function CheckTicketEntryCard({ locale, messages }: { locale: Locale; messages: Messages }) {
+export function CheckTicketEntryCard({ locale, messages, drawId }: { locale: Locale; messages: Messages; drawId?: string }) {
+  const href = drawId ? `/${locale}/check?draw=${encodeURIComponent(drawId)}` : `/${locale}/check`;
   return (
-    <Link href={`/${locale}/check`} data-testid="check-entry-card" className="card group flex items-center gap-4 px-5 py-5 no-underline transition-shadow hover:shadow-[0_6px_20px_rgb(16_37_47/0.1)]">
+    <Link href={href} data-testid="check-entry-card" className="card group flex items-center gap-4 px-5 py-5 no-underline transition-shadow hover:shadow-[0_6px_20px_rgb(16_37_47/0.1)]">
       <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
         <SearchIcon className="h-7 w-7" />
       </span>
