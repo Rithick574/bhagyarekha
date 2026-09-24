@@ -39,3 +39,12 @@ strings were machine-drafted by the implementer in the same pass as the English 
 have **not** been reviewed by a native speaker. The outcome wording is legally sensitive
 (it must never read as a claim confirmation or a definitive "no prize" for incomplete
 results); a reviewer should check those meanings, not only grammar.
+
+## Stage 3 additions (administration)
+
+`ml.ts` gained the `admin.*` section (login, navigation, dashboard, lotteries, rule versions,
+draws, imports, revisions, audit) and `footer.admin`. All strings were machine-drafted by the
+implementer alongside the English text and are **not** reviewed. The admin UI is for operators,
+so review priority is lower than public strings, but the wording of the self-review confirmation
+(`admin.revisions.selfReview`) and the publication/suspension dialogs must keep their meaning:
+they must never suggest independent verification or official certification.

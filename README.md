@@ -3,7 +3,7 @@
 Independent Kerala lottery results, ticket comparison and historical-statistics web app.
 **Not an official government application.** No ticket sales, wagers, payments or predictions.
 
-> **Stages 1 (foundation + viewing) and 2 (ticket checking) are implemented.** Everything the demo shows is
+> **Stages 1 (foundation + viewing), 2 (ticket checking) and 3 (admin operations) are implemented.** Everything the demo shows is
 > **synthetic sample data**. No live lottery source is integrated. See
 > [docs/data-sources.md](docs/data-sources.md).
 
@@ -51,7 +51,7 @@ Using an existing PostgreSQL instead of Docker: create two empty databases, poin
 | `pnpm db:migrate` (`-- --status`) | Apply / inspect migrations |
 | `pnpm env:init -- --mode demo\|live` | Mark a database's mode once; never changes an existing marker |
 | `pnpm seed:demo` | Synthetic fixtures; refuses unless env **and** database are demo |
-| `pnpm admin:create -- --email x@y.z [--role PUBLISHER\|EDITOR]` | Creates an admin (Argon2id, password from stdin). Login UI arrives in Stage 3 |
+| `pnpm admin:create -- --email x@y.z [--role PUBLISHER\|EDITOR]` | Creates an admin (Argon2id, password from stdin); sign in at `/en/admin/login` |
 | `pnpm contracts:check` | Fails if `packages/contracts/openapi.json` is stale |
 
 ## Demo vs live
@@ -78,8 +78,9 @@ docs/               design docs, data-source/rules/deployment notes
 
 * Ticket checking compares typed numbers with one published revision (`POST /api/v1/ticket-check`);
   a match is informational, never proof of a valid ticket or an accepted claim.
-* History, statistics and admin import/publish are **later stages**; their pages say so
-  instead of showing fake forms or charts.
+* Admin operations (sessions, CSRF, imports with preview, review, atomic publish,
+  corrections, suspension, audit) are documented in [docs/admin.md](docs/admin.md).
+* History and statistics are **later stages**; their pages say so instead of showing fake charts.
 * Prize-matching rules in fixtures are invented engine exercises, not Kerala rules.
 * Malayalam strings are machine-drafted and flagged for native review ([docs/translations.md](docs/translations.md)).
 * Production readiness gates are listed in [docs/deployment.md](docs/deployment.md).

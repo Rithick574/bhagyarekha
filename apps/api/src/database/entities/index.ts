@@ -1,4 +1,8 @@
+import { AdminIdempotencyEntity } from './admin-idempotency.entity.js';
+import { AdminSessionEntity } from './admin-session.entity.js';
 import { AdminUserEntity } from './admin-user.entity.js';
+import { AuditEventEntity } from './audit-event.entity.js';
+import { ImportBatchEntity } from './import-batch.entity.js';
 import { DeploymentMetadataEntity } from './deployment-metadata.entity.js';
 import { DrawEntity } from './draw.entity.js';
 import { LotteryEntity } from './lottery.entity.js';
@@ -12,6 +16,10 @@ import { SourceEvidenceEntity } from './source-evidence.entity.js';
 import { WinningEntryEntity } from './winning-entry.entity.js';
 
 export {
+  AdminIdempotencyEntity,
+  AdminSessionEntity,
+  AuditEventEntity,
+  ImportBatchEntity,
   AdminUserEntity,
   DeploymentMetadataEntity,
   DrawEntity,
@@ -40,4 +48,8 @@ export const ALL_ENTITIES = [
   RevisionCategoryEntity,
   WinningEntryEntity,
   RevisionEvidenceEntity,
+  AdminSessionEntity,
+  AuditEventEntity,
+  AdminIdempotencyEntity,
+  ImportBatchEntity,
 ];

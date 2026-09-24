@@ -7,8 +7,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
-import { API_PREFIX, ErrorResponseSchema, publicRoutes } from '../src/index.js';
-import type { RouteContract } from '../src/index.js';
+import { API_PREFIX, ErrorResponseSchema, adminRoutes, publicRoutes } from '../src/index.js';
+import type { AdminRouteContract, RouteContract } from '../src/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const target = resolve(here, '..', 'openapi.json');
@@ -48,7 +48,14 @@ function parametersFor(route: RouteContract): JsonRecord[] {
 function buildDocument(): JsonRecord {
   const errorSchema = toSchema(ErrorResponseSchema);
   const paths: Record<string, JsonRecord> = {};
-  for (const [name, route] of Object.entries(publicRoutes) as [string, RouteContract][]) {
+  type AnyRoute = RouteContract | AdminRouteContract;
+  const all: [string, AnyRoute, string][] = [
+    ...(Object.entries(publicRoutes) as [string, RouteContract][]).map(([n, r]): [string, AnyRoute, string] => [n, r, 'public']),
+    ...(Object.entries(adminRoutes) as [string, AdminRouteContract][]).map(([n, r]): [string, AnyRoute, string] => [n, r, 'admin']),
+  ];
+  for (const [name, route, tag] of all) {
+    const role = 'role' in route ? route.role : undefined;
+    const headers = 'headers' in route ? (route.headers ?? []) : [];
     const openApiPath = route.path.replace(/:([A-Za-z]+)/g, '{$1}');
     const responses: JsonRecord = {
       '200': {
@@ -69,10 +76,12 @@ function buildDocument(): JsonRecord {
         content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
       };
     }
+    const headerParams: JsonRecord[] = headers.map((h) => ({ name: h, in: 'header', required: true, schema: { type: 'string' } }));
     const operation: JsonRecord = {
       operationId: name,
-      summary: route.summary,
-      parameters: parametersFor(route),
+      tags: [tag],
+      summary: route.summary + (role && role !== 'NONE' ? ` (requires ${role === 'SESSION' ? 'a session' : `role ${role}`}; unsafe methods need Origin + X-CSRF-Token)` : ''),
+      parameters: [...parametersFor(route), ...headerParams],
       responses,
     };
     if (route.body) {
@@ -81,7 +90,7 @@ function buildDocument(): JsonRecord {
         content: { 'application/json': { schema: toInputSchema(route.body) } },
       };
     }
-    paths[openApiPath] = { [route.method.toLowerCase()]: operation };
+    paths[openApiPath] = { ...(paths[openApiPath] ?? {}), [route.method.toLowerCase()]: operation };
   }
   return {
     openapi: '3.0.3',

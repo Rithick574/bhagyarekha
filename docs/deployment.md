@@ -20,7 +20,7 @@ public origin). Demo and live are separate deployments with separate databases.
 
 ## Environment variables
 
-See `.env.example`. Secrets live in the platform's secret store, never in Git.
+See `.env.example`. Production must leave `INSECURE_DEV_COOKIES` unset/false (it is ignored when `NODE_ENV=production`) and keep `ALLOW_SELF_REVIEW=false` unless a single-operator launch has been explicitly accepted. Secrets live in the platform's secret store, never in Git.
 `TRUST_PROXY_HOPS` must match the number of reverse proxies so rate limits use real client IPs.
 
 ## Security posture implemented so far
@@ -35,8 +35,9 @@ See `.env.example`. Secrets live in the platform's secret store, never in Git.
 
 - [ ] Real lottery catalog, draw identifiers and series domains configured and reviewed
 - [ ] Rule versions approved with official scheme evidence (Stage 2 evaluator + Stage 3 admin)
-- [ ] Reviewed import → review → publish workflow live (Stage 3) with audit trail
-- [ ] Admin authentication hardened (sessions, CSRF, MFA/access layer) — Stage 3/5
+- [x] Reviewed import → review → publish workflow (Stage 3) with append-only audit trail
+- [x] Admin cookie sessions, CSRF/Origin checks, login throttling (Stage 3)
+- [ ] MFA or a restricted access layer in front of `/admin` before public exposure
 - [x] Ticket check endpoint with completeness handling (Stage 2) — rules themselves still synthetic
 - [ ] History and statistics with coverage labels (Stage 4)
 - [ ] PWA shell, offline labelling, accessibility audit at 200% zoom (Stage 5)

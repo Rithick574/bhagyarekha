@@ -20,7 +20,7 @@ function revision(overrides: Partial<ResultRevisionEntity> = {}): ResultRevision
     id: 'c0000001-0000-4000-8000-000000000391', drawId: draw().id, lotteryId: lottery.id, ruleVersionId: 'b0000001-0000-4000-8000-000000000001', revisionNo: 1,
     drawSnapshot: { drawCode: 'NL-039', scheduledDate: '2026-09-24', actualDate: '2026-09-24', scheduledAt: '2026-09-24T09:30:00.000Z', actualAt: '2026-09-24T09:30:00.000Z' },
     basedOnRevisionId: null, workflowState: 'PUBLISHED', publicationKind: 'INITIAL', completeness: 'COMPLETE', contentHash: 'x', reviewedHash: 'x', reviewedBy: null,
-    reviewedAt: new Date('2026-09-24T11:00:00Z'), publishedBy: null, publishedAt: new Date('2026-09-24T11:05:00Z'), correctionReason: null, createdAt: new Date(), updatedAt: new Date(), editVersion: 2, ...overrides,
+    reviewedAt: new Date('2026-09-24T11:00:00Z'), publishedBy: null, publishedAt: new Date('2026-09-24T11:05:00Z'), correctionReason: null, createdBy: null, lastEditedBy: null, createdAt: new Date(), updatedAt: new Date(), editVersion: 2, ...overrides,
   };
 }
 

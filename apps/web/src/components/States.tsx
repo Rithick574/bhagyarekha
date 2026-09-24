@@ -27,7 +27,7 @@ export function EmptyState({ title, body, homeHref, homeLabel }: { title: string
       <h2 className="text-[1.35rem] font-bold leading-snug">{title}</h2>
       <p className="mt-2 text-ink-secondary">{body}</p>
       {homeHref && homeLabel ? (
-        <Link href={homeHref} className="touch-target mt-4 inline-flex items-center gap-2 rounded-control border border-line bg-card px-5 font-semibold text-primary no-underline hover:bg-primary-soft">
+        <Link href={homeHref} className="touch-target mt-4 inline-flex items-center gap-2 rounded-control border border-line bg-card px-5 font-semibold text-primary no-underline hover:bg-primary-soft hover:text-primary-hover">
           <ArrowLeftIcon className="h-5 w-5" />
           {homeLabel}
         </Link>

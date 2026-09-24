@@ -1,7 +1,16 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
+import type { IncomingMessage } from 'node:http';
+import type { RequestHandler } from 'express';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import helmet from 'helmet';
+import helmetModule from 'helmet';
+
+// Helmet 8 exports the middleware as default. NodeNext sometimes types that
+// import as the module namespace, which is not callable.
+const helmet = helmetModule as unknown as (options?: {
+  contentSecurityPolicy?: { directives?: Record<string, null | Iterable<string>> };
+  crossOriginResourcePolicy?: { policy?: 'same-origin' | 'same-site' | 'cross-origin' };
+}) => RequestHandler;
 import { AppModule, type AppModuleOptions } from './app.module.js';
 import { ApiExceptionFilter } from './common/api-exception.filter.js';
 import { type AppLogger, PinoNestLogger, createLogger, requestLogMiddleware } from './common/logger.js';
@@ -9,6 +18,8 @@ import { noStoreMiddleware, requestIdMiddleware } from './common/request-context
 
 export interface CreateAppOptions extends AppModuleOptions {
   logger?: AppLogger;
+  /** Test-only: provider overrides applied through @nestjs/testing (loaded lazily, never in production paths). */
+  overrides?: (builder: import('@nestjs/testing').TestingModuleBuilder) => import('@nestjs/testing').TestingModuleBuilder;
 }
 
 /**
@@ -19,11 +30,15 @@ export async function createApp(options: CreateAppOptions): Promise<{ app: NestE
   const { env } = options;
   const logger = options.logger ?? createLogger({ level: env.LOG_LEVEL, appEnv: env.APP_ENV, dataMode: env.DATA_MODE });
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule.forRoot(options), {
-    bodyParser: false,
-    abortOnError: false,
-    logger: new PinoNestLogger(logger),
-  });
+  const nestLogger = new PinoNestLogger(logger);
+  let app: NestExpressApplication;
+  if (options.overrides) {
+    const { Test } = await import('@nestjs/testing');
+    const moduleRef = await options.overrides(Test.createTestingModule({ imports: [AppModule.forRoot(options)] })).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>({ bodyParser: false, abortOnError: false, logger: nestLogger });
+  } else {
+    app = await NestFactory.create<NestExpressApplication>(AppModule.forRoot(options), { bodyParser: false, abortOnError: false, logger: nestLogger });
+  }
 
   app.setGlobalPrefix('api/v1');
   app.set('trust proxy', env.TRUST_PROXY_HOPS);
@@ -32,11 +47,14 @@ export async function createApp(options: CreateAppOptions): Promise<{ app: NestE
   app.enableCors({
     // Callback form: a non-matching Origin receives no CORS headers at all (a string origin would be echoed unconditionally).
     origin: (origin, callback) => callback(null, origin === env.ALLOWED_ORIGIN),
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH'],
     credentials: true,
     maxAge: 600,
   });
-  app.useBodyParser('json', { limit: '64kb' });
+  // Imports may carry up to IMPORT_MAX_BYTES of CSV/JSON text (plus envelope); every other route stays small.
+  const isImportRoute = (req: IncomingMessage) => (req.url ?? '').startsWith('/api/v1/admin/imports') && /^application\/json/i.test(String(req.headers['content-type'] ?? ''));
+  app.useBodyParser('json', { limit: env.IMPORT_MAX_BYTES + 256 * 1024, type: isImportRoute });
+  app.useBodyParser('json', { limit: '64kb', type: (req: IncomingMessage) => !isImportRoute(req) && /^application\/json/i.test(String(req.headers['content-type'] ?? '')) });
   app.use(requestIdMiddleware);
   app.use(noStoreMiddleware);
   app.use(requestLogMiddleware(logger));

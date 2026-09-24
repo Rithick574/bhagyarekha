@@ -4,6 +4,7 @@ import { FoundationMetadataAdmin1758700000001 } from './1758700000001-Foundation
 import { Indexes1758700000006 } from './1758700000006-Indexes.js';
 import { PointerAndGuards1758700000005 } from './1758700000005-PointerAndGuards.js';
 import { Revisions1758700000004 } from './1758700000004-Revisions.js';
+import { AdminOperations1758700000007 } from './1758700000007-AdminOperations.js';
 
 /** Explicit, ordered migration list. No filesystem globbing so ESM builds and tests behave identically. */
 export const ALL_MIGRATIONS = [
@@ -13,4 +14,5 @@ export const ALL_MIGRATIONS = [
   Revisions1758700000004,
   PointerAndGuards1758700000005,
   Indexes1758700000006,
+  AdminOperations1758700000007,
 ];

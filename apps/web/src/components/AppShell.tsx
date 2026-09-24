@@ -76,6 +76,11 @@ export function AppShell({ locale, messages, dataMode, children }: Props) {
               </Link>
             </li>
             {dataMode ? <li className="inline-flex min-h-12 items-center">{t(messages.footer.dataMode, { mode: dataMode === 'demo' ? messages.footer.modeDemo : messages.footer.modeLive })}</li> : null}
+            <li>
+              <Link href={`/${locale}/admin`} rel="nofollow" className="touch-target inline-flex items-center text-ink-secondary underline decoration-1 underline-offset-4" data-testid="footer-admin-link">
+                {messages.footer.admin}
+              </Link>
+            </li>
           </ul>
         </div>
       </footer>

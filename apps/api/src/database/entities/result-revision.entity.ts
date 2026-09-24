@@ -62,6 +62,12 @@ export class ResultRevisionEntity {
   @Column({ name: 'correction_reason', type: 'text', nullable: true })
   correctionReason: string | null;
 
+  @Column({ name: 'created_by', type: 'uuid', nullable: true })
+  createdBy: string | null;
+
+  @Column({ name: 'last_edited_by', type: 'uuid', nullable: true })
+  lastEditedBy: string | null;
+
   @Column({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

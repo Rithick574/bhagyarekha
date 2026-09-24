@@ -288,6 +288,7 @@ export const ErrorCodeSchema = z.enum([
   'IMPORT_TOO_LARGE',
   'RATE_LIMITED',
   'NOT_FOUND',
+  'ALREADY_EXISTS',
   'RESULT_UNAVAILABLE',
   'SERVICE_UNAVAILABLE',
   'INTERNAL_ERROR',

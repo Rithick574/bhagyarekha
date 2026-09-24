@@ -17,6 +17,14 @@ export const EnvSchema = z.object({
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(120),
   /** Requests per minute per client for POST /ticket-check (LLD §7.2 proposes 30). */
   RATE_LIMIT_CHECK_PER_MINUTE: z.coerce.number().int().min(1).default(30),
+  /** Single-operator deployments may allow the creator of a revision to review it. Recorded on every such publication. */
+  ALLOW_SELF_REVIEW: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  SESSION_IDLE_MINUTES: z.coerce.number().int().min(5).max(24 * 60).default(30),
+  SESSION_ABSOLUTE_HOURS: z.coerce.number().int().min(1).max(24 * 7).default(8),
+  IMPORT_MAX_BYTES: z.coerce.number().int().min(1024).max(2 * 1024 * 1024).default(2 * 1024 * 1024),
+  IMPORT_MAX_ENTRIES: z.coerce.number().int().min(1).max(20_000).default(20_000),
+  /** Development only: allow the session cookie without Secure (never honoured when NODE_ENV=production). */
+  INSECURE_DEV_COOKIES: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
 });
 export type Env = z.infer<typeof EnvSchema>;
 

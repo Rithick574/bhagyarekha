@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
+import type { TestingModuleBuilder } from '@nestjs/testing';
 import { type DataSource } from 'typeorm';
 import { createApp } from '../../src/app.js';
 import { FixedClock } from '../../src/common/clock.js';
@@ -23,6 +24,12 @@ export function testEnv(overrides: Partial<Env> = {}): Env {
     TRUST_PROXY_HOPS: 0,
     RATE_LIMIT_PER_MINUTE: 120,
     RATE_LIMIT_CHECK_PER_MINUTE: 30,
+    ALLOW_SELF_REVIEW: false,
+    SESSION_IDLE_MINUTES: 30,
+    SESSION_ABSOLUTE_HOURS: 8,
+    IMPORT_MAX_BYTES: 2 * 1024 * 1024,
+    IMPORT_MAX_ENTRIES: 20_000,
+    INSECURE_DEV_COOKIES: true,
     ...overrides,
   };
 }
@@ -48,9 +55,9 @@ export async function seedDemoDatabase(ds: DataSource): Promise<void> {
 export const silentLogger = () => createLogger({ level: 'silent', appEnv: 'test', dataMode: 'demo' });
 
 /** Boots the real HTTP app (all middleware, filters, guards) against the test database with a fixed IST "today". */
-export async function bootApp(options: { today?: string; env?: Partial<Env> } = {}): Promise<INestApplication> {
+export async function bootApp(options: { today?: string; env?: Partial<Env>; overrides?: (b: TestingModuleBuilder) => TestingModuleBuilder } = {}): Promise<INestApplication> {
   const env = testEnv(options.env);
   const clock = new FixedClock(new Date(`${options.today ?? '2026-09-24'}T06:00:00.000Z`));
-  const { app } = await createApp({ env, clock, logger: silentLogger(), rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 100_000 });
+  const { app } = await createApp({ env, clock, logger: silentLogger(), rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 100_000, overrides: options.overrides });
   return app;
 }

@@ -19,7 +19,7 @@ import { TicketCheckRequestSchema, TicketCheckResponseSchema } from './ticket-ch
 export const API_PREFIX = '/api/v1';
 
 export interface RouteContract {
-  method: 'GET' | 'POST';
+  method: 'GET' | 'POST' | 'PATCH';
   /** Path relative to API_PREFIX, Express style (`:drawId`). */
   path: string;
   summary: string;

@@ -6,6 +6,11 @@ import type { Clock } from './common/clock.js';
 import { ConfigModule } from './config/config.module.js';
 import type { Env } from './config/env.js';
 import { buildDataSourceOptions } from './database/data-source.js';
+import { AdminCatalogModule } from './modules/admin-catalog/admin-catalog.module.js';
+import { ImportsModule } from './modules/imports/imports.module.js';
+import { PublishingModule } from './modules/publishing/publishing.module.js';
+import { AuditModule } from './modules/audit/audit.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
 import { DeploymentModeModule } from './modules/deployment-mode/deployment-mode.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { ResultsModule } from './modules/results/results.module.js';
@@ -32,9 +37,14 @@ export class AppModule {
           { name: 'check', ttl: 60_000, limit: options.rateLimitCheckPerMinute ?? options.env.RATE_LIMIT_CHECK_PER_MINUTE },
         ]),
         DeploymentModeModule,
+        AuthModule,
+        AuditModule,
         HealthModule,
         ResultsModule,
         TicketCheckModule,
+        AdminCatalogModule,
+        PublishingModule,
+        ImportsModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
     };
