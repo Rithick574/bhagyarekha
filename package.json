@@ -5,7 +5,7 @@
   "description": "BhagyaRekha / \u0d2d\u0d3e\u0d17\u0d4d\u0d2f\u0d30\u0d47\u0d16 \u2014 independent Kerala lottery results and historical statistics (workspace root)",
   "packageManager": "pnpm@9.7.0",
   "engines": {
-    "node": ">=22.12.0 <23",
+    "node": "22.x",
     "pnpm": ">=9.7.0"
   },
   "scripts": {
