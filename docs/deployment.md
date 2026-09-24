@@ -1,0 +1,48 @@
+# Deployment guidance and production-readiness checklist
+
+**Nothing has been deployed. No domain has been purchased. No provider account is assumed.**
+
+## Topology
+
+One Next.js instance, one NestJS API instance, one managed PostgreSQL 17 per environment,
+HTTPS ingress routing `/api/v1/*` to the API and everything else to the web app (same
+public origin). Demo and live are separate deployments with separate databases.
+
+## Release procedure
+
+1. Back up the database and verify a restore drill has succeeded recently.
+2. Run `pnpm db:migrate` as a release job with the migration-owner role (never from app replicas).
+3. First deployment of a new database only: `pnpm env:init -- --mode live` (or `demo`).
+4. Deploy the API; readiness (`/api/v1/health/ready`) must report `status: ok`.
+   The API exits non-zero on mode mismatch, missing marker, or pending migrations.
+5. Deploy the web with `INTERNAL_API_BASE_URL` pointing at the private API address.
+6. Smoke-test `/en`, `/ml`, a result page, and readiness. Enable traffic.
+
+## Environment variables
+
+See `.env.example`. Secrets live in the platform's secret store, never in Git.
+`TRUST_PROXY_HOPS` must match the number of reverse proxies so rate limits use real client IPs.
+
+## Security posture implemented so far
+
+* Helmet headers, restrictive CORS (single configured origin), 64 kB JSON body limit,
+  in-process rate limiting (120 req/min default), `Cache-Control: no-store` on every API response.
+* Structured logs without bodies, query values or ticket inputs. Server-generated request IDs.
+* Database immutability triggers on published payloads, approved rules, referenced evidence and the mode marker.
+
+## Production-readiness checklist (open)
+
+- [ ] Real lottery catalog, draw identifiers and series domains configured and reviewed
+- [ ] Rule versions approved with official scheme evidence (Stage 2 evaluator + Stage 3 admin)
+- [ ] Reviewed import → review → publish workflow live (Stage 3) with audit trail
+- [ ] Admin authentication hardened (sessions, CSRF, MFA/access layer) — Stage 3/5
+- [ ] Ticket check endpoint with completeness handling (Stage 2)
+- [ ] History and statistics with coverage labels (Stage 4)
+- [ ] PWA shell, offline labelling, accessibility audit at 200% zoom (Stage 5)
+- [ ] Source reproduction/permission review; privacy notice reflecting actual hosting behaviour
+- [ ] Native Malayalam review of all strings
+- [ ] Monitoring, alerting on readiness failures, centralized logs, backup + restore drill
+- [ ] Named draw-day operator, backup reviewer and error-report contact
+- [ ] CI green on a clean machine (`.github/workflows/ci.yml`)
+
+Until these are closed the service is a **demo or restricted staging** deployment only.

@@ -1,0 +1,2621 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BhagyaRekha public API",
+    "version": "0.1.0",
+    "description": "Read-only public API. Every response carries dataMode; demo deployments serve synthetic fixtures only. Generated from packages/contracts — do not edit by hand."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "paths": {
+    "/lotteries": {
+      "get": {
+        "operationId": "listLotteries",
+        "summary": "List lotteries with localized names and archive coverage",
+        "parameters": [
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataMode": {
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "code": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "slug": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "name": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "ml": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "ml"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "active": {
+                            "type": "boolean"
+                          },
+                          "archiveCoverage": {
+                            "type": "string",
+                            "enum": [
+                              "UNKNOWN",
+                              "CURATED_COMPLETE"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "code",
+                          "slug",
+                          "name",
+                          "active",
+                          "archiveCoverage"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "dataMode",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/draws": {
+      "get": {
+        "operationId": "listDraws",
+        "summary": "List draws (metadata only) ordered by display date, newest first",
+        "parameters": [
+          {
+            "name": "lotteryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataMode": {
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "lotteryId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "lotteryCode": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "lotterySlug": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "lotteryName": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "ml": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "ml"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "drawCode": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "scheduledDate": {
+                            "nullable": true,
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          "actualDate": {
+                            "nullable": true,
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          "displayDate": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          "scheduledAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "actualAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "phase": {
+                            "type": "string",
+                            "enum": [
+                              "SCHEDULED",
+                              "POSTPONED",
+                              "HELD",
+                              "CANCELLED"
+                            ]
+                          },
+                          "visibility": {
+                            "type": "string",
+                            "enum": [
+                              "ACTIVE",
+                              "SUSPENDED"
+                            ]
+                          },
+                          "publicationStatus": {
+                            "type": "string",
+                            "enum": [
+                              "NOT_PUBLISHED",
+                              "PARTIAL",
+                              "COMPLETE",
+                              "SUSPENDED",
+                              "CANCELLED"
+                            ]
+                          },
+                          "currentRevision": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "revisionNo": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 9007199254740991
+                              },
+                              "publicationKind": {
+                                "type": "string",
+                                "enum": [
+                                  "INITIAL",
+                                  "UPDATE",
+                                  "CORRECTION"
+                                ]
+                              },
+                              "completeness": {
+                                "type": "string",
+                                "enum": [
+                                  "PARTIAL",
+                                  "COMPLETE"
+                                ]
+                              },
+                              "publishedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "isCorrection": {
+                                "type": "boolean"
+                              },
+                              "correctionReason": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "supersededRevisionCount": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "revisionNo",
+                              "publicationKind",
+                              "completeness",
+                              "publishedAt",
+                              "isCorrection",
+                              "correctionReason",
+                              "supersededRevisionCount"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "firstPrize": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "categoryCode": {
+                                "type": "string",
+                                "pattern": "^[A-Z0-9_]{1,32}$"
+                              },
+                              "label": {
+                                "type": "object",
+                                "properties": {
+                                  "en": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "ml": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "en",
+                                  "ml"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "MISSING",
+                                  "PARTIAL",
+                                  "COMPLETE"
+                                ]
+                              },
+                              "amountMinor": {
+                                "nullable": true,
+                                "type": "string",
+                                "pattern": "^\\d{1,18}$"
+                              },
+                              "currency": {
+                                "type": "string",
+                                "enum": [
+                                  "INR"
+                                ]
+                              },
+                              "entries": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "series": {
+                                      "type": "string",
+                                      "pattern": "^[A-Z]{0,8}$"
+                                    },
+                                    "number": {
+                                      "type": "string",
+                                      "pattern": "^[0-9]{1,12}$"
+                                    }
+                                  },
+                                  "required": [
+                                    "series",
+                                    "number"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "categoryCode",
+                              "label",
+                              "state",
+                              "amountMinor",
+                              "currency",
+                              "entries"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "lotteryId",
+                          "lotteryCode",
+                          "lotterySlug",
+                          "lotteryName",
+                          "drawCode",
+                          "scheduledDate",
+                          "actualDate",
+                          "displayDate",
+                          "scheduledAt",
+                          "actualAt",
+                          "phase",
+                          "visibility",
+                          "publicationStatus",
+                          "currentRevision",
+                          "firstPrize"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "dataMode",
+                    "items",
+                    "page",
+                    "pageSize",
+                    "total"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/draws/latest": {
+      "get": {
+        "operationId": "latestDraws",
+        "summary": "Latest published draw and, separately, the pending draw",
+        "parameters": [
+          {
+            "name": "lotteryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataMode": {
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "latestPublished": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotterySlug": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotteryName": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "ml": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "en",
+                            "ml"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "drawCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "scheduledDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "actualDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "displayDate": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "scheduledAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "actualAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "phase": {
+                          "type": "string",
+                          "enum": [
+                            "SCHEDULED",
+                            "POSTPONED",
+                            "HELD",
+                            "CANCELLED"
+                          ]
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED"
+                          ]
+                        },
+                        "publicationStatus": {
+                          "type": "string",
+                          "enum": [
+                            "NOT_PUBLISHED",
+                            "PARTIAL",
+                            "COMPLETE",
+                            "SUSPENDED",
+                            "CANCELLED"
+                          ]
+                        },
+                        "currentRevision": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "revisionNo": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "publicationKind": {
+                              "type": "string",
+                              "enum": [
+                                "INITIAL",
+                                "UPDATE",
+                                "CORRECTION"
+                              ]
+                            },
+                            "completeness": {
+                              "type": "string",
+                              "enum": [
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "publishedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "isCorrection": {
+                              "type": "boolean"
+                            },
+                            "correctionReason": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "supersededRevisionCount": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "revisionNo",
+                            "publicationKind",
+                            "completeness",
+                            "publishedAt",
+                            "isCorrection",
+                            "correctionReason",
+                            "supersededRevisionCount"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "firstPrize": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "categoryCode": {
+                              "type": "string",
+                              "pattern": "^[A-Z0-9_]{1,32}$"
+                            },
+                            "label": {
+                              "type": "object",
+                              "properties": {
+                                "en": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "ml": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "en",
+                                "ml"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "MISSING",
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "amountMinor": {
+                              "nullable": true,
+                              "type": "string",
+                              "pattern": "^\\d{1,18}$"
+                            },
+                            "currency": {
+                              "type": "string",
+                              "enum": [
+                                "INR"
+                              ]
+                            },
+                            "entries": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "series": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{0,8}$"
+                                  },
+                                  "number": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,12}$"
+                                  }
+                                },
+                                "required": [
+                                  "series",
+                                  "number"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "categoryCode",
+                            "label",
+                            "state",
+                            "amountMinor",
+                            "currency",
+                            "entries"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lotteryId",
+                        "lotteryCode",
+                        "lotterySlug",
+                        "lotteryName",
+                        "drawCode",
+                        "scheduledDate",
+                        "actualDate",
+                        "displayDate",
+                        "scheduledAt",
+                        "actualAt",
+                        "phase",
+                        "visibility",
+                        "publicationStatus",
+                        "currentRevision",
+                        "firstPrize"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pendingDraw": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotterySlug": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotteryName": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "ml": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "en",
+                            "ml"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "drawCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "scheduledDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "actualDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "displayDate": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "scheduledAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "actualAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "phase": {
+                          "type": "string",
+                          "enum": [
+                            "SCHEDULED",
+                            "POSTPONED",
+                            "HELD",
+                            "CANCELLED"
+                          ]
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED"
+                          ]
+                        },
+                        "publicationStatus": {
+                          "type": "string",
+                          "enum": [
+                            "NOT_PUBLISHED",
+                            "PARTIAL",
+                            "COMPLETE",
+                            "SUSPENDED",
+                            "CANCELLED"
+                          ]
+                        },
+                        "currentRevision": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "revisionNo": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "publicationKind": {
+                              "type": "string",
+                              "enum": [
+                                "INITIAL",
+                                "UPDATE",
+                                "CORRECTION"
+                              ]
+                            },
+                            "completeness": {
+                              "type": "string",
+                              "enum": [
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "publishedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "isCorrection": {
+                              "type": "boolean"
+                            },
+                            "correctionReason": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "supersededRevisionCount": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "revisionNo",
+                            "publicationKind",
+                            "completeness",
+                            "publishedAt",
+                            "isCorrection",
+                            "correctionReason",
+                            "supersededRevisionCount"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "firstPrize": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "categoryCode": {
+                              "type": "string",
+                              "pattern": "^[A-Z0-9_]{1,32}$"
+                            },
+                            "label": {
+                              "type": "object",
+                              "properties": {
+                                "en": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "ml": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "en",
+                                "ml"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "MISSING",
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "amountMinor": {
+                              "nullable": true,
+                              "type": "string",
+                              "pattern": "^\\d{1,18}$"
+                            },
+                            "currency": {
+                              "type": "string",
+                              "enum": [
+                                "INR"
+                              ]
+                            },
+                            "entries": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "series": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{0,8}$"
+                                  },
+                                  "number": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,12}$"
+                                  }
+                                },
+                                "required": [
+                                  "series",
+                                  "number"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "categoryCode",
+                            "label",
+                            "state",
+                            "amountMinor",
+                            "currency",
+                            "entries"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lotteryId",
+                        "lotteryCode",
+                        "lotterySlug",
+                        "lotteryName",
+                        "drawCode",
+                        "scheduledDate",
+                        "actualDate",
+                        "displayDate",
+                        "scheduledAt",
+                        "actualAt",
+                        "phase",
+                        "visibility",
+                        "publicationStatus",
+                        "currentRevision",
+                        "firstPrize"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "asOfDate": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    }
+                  },
+                  "required": [
+                    "dataMode",
+                    "latestPublished",
+                    "pendingDraw",
+                    "asOfDate"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/draws/{drawId}": {
+      "get": {
+        "operationId": "getDraw",
+        "summary": "Draw identity, dates, visibility, current revision summary and checking capability",
+        "parameters": [
+          {
+            "name": "drawId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "lotteryId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "lotteryCode": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lotterySlug": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lotteryName": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "ml": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "ml"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "drawCode": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "scheduledDate": {
+                      "nullable": true,
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "actualDate": {
+                      "nullable": true,
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "displayDate": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "scheduledAt": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "actualAt": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "phase": {
+                      "type": "string",
+                      "enum": [
+                        "SCHEDULED",
+                        "POSTPONED",
+                        "HELD",
+                        "CANCELLED"
+                      ]
+                    },
+                    "visibility": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "publicationStatus": {
+                      "type": "string",
+                      "enum": [
+                        "NOT_PUBLISHED",
+                        "PARTIAL",
+                        "COMPLETE",
+                        "SUSPENDED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "currentRevision": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "revisionNo": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "publicationKind": {
+                          "type": "string",
+                          "enum": [
+                            "INITIAL",
+                            "UPDATE",
+                            "CORRECTION"
+                          ]
+                        },
+                        "completeness": {
+                          "type": "string",
+                          "enum": [
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        },
+                        "publishedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "isCorrection": {
+                          "type": "boolean"
+                        },
+                        "correctionReason": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "supersededRevisionCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revisionNo",
+                        "publicationKind",
+                        "completeness",
+                        "publishedAt",
+                        "isCorrection",
+                        "correctionReason",
+                        "supersededRevisionCount"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "firstPrize": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "categoryCode": {
+                          "type": "string",
+                          "pattern": "^[A-Z0-9_]{1,32}$"
+                        },
+                        "label": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "ml": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "en",
+                            "ml"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "MISSING",
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        },
+                        "amountMinor": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{1,18}$"
+                        },
+                        "currency": {
+                          "type": "string",
+                          "enum": [
+                            "INR"
+                          ]
+                        },
+                        "entries": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "series": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{0,8}$"
+                              },
+                              "number": {
+                                "type": "string",
+                                "pattern": "^[0-9]{1,12}$"
+                              }
+                            },
+                            "required": [
+                              "series",
+                              "number"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "categoryCode",
+                        "label",
+                        "state",
+                        "amountMinor",
+                        "currency",
+                        "entries"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "dataMode": {
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "checking": {
+                      "type": "object",
+                      "properties": {
+                        "capability": {
+                          "type": "string",
+                          "enum": [
+                            "SUPPORTED",
+                            "UNSUPPORTED",
+                            "NOT_APPLICABLE"
+                          ]
+                        },
+                        "ruleVersionId": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "reasonCode": {
+                          "nullable": true,
+                          "type": "string",
+                          "enum": [
+                            "NO_PUBLISHED_RESULT",
+                            "RESULT_SUSPENDED",
+                            "DRAW_CANCELLED",
+                            "RULE_NOT_APPROVED",
+                            "RULE_REVOKED",
+                            "RULE_NOT_COMPILABLE",
+                            "CHECKER_NOT_AVAILABLE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "capability",
+                        "ruleVersionId",
+                        "reasonCode"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "OFFICIAL_DOCUMENT",
+                              "MANUAL_TRANSCRIPTION",
+                              "SYNTHETIC_FIXTURE"
+                            ]
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "url": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "reviewedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "title",
+                          "url",
+                          "reviewedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "lotteryId",
+                    "lotteryCode",
+                    "lotterySlug",
+                    "lotteryName",
+                    "drawCode",
+                    "scheduledDate",
+                    "actualDate",
+                    "displayDate",
+                    "scheduledAt",
+                    "actualAt",
+                    "phase",
+                    "visibility",
+                    "publicationStatus",
+                    "currentRevision",
+                    "firstPrize",
+                    "dataMode",
+                    "checking",
+                    "sources"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/draws/{drawId}/result": {
+      "get": {
+        "operationId": "getDrawResult",
+        "summary": "Current published result: category manifest and paginated entries",
+        "parameters": [
+          {
+            "name": "drawId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "categoryCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z0-9_]{1,32}$"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "revisionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataMode": {
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "draw": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "lotteryCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotterySlug": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lotteryName": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "ml": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "en",
+                            "ml"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "drawCode": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "scheduledDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "actualDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "displayDate": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "scheduledAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "actualAt": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "phase": {
+                          "type": "string",
+                          "enum": [
+                            "SCHEDULED",
+                            "POSTPONED",
+                            "HELD",
+                            "CANCELLED"
+                          ]
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED"
+                          ]
+                        },
+                        "publicationStatus": {
+                          "type": "string",
+                          "enum": [
+                            "NOT_PUBLISHED",
+                            "PARTIAL",
+                            "COMPLETE",
+                            "SUSPENDED",
+                            "CANCELLED"
+                          ]
+                        },
+                        "currentRevision": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "revisionNo": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "publicationKind": {
+                              "type": "string",
+                              "enum": [
+                                "INITIAL",
+                                "UPDATE",
+                                "CORRECTION"
+                              ]
+                            },
+                            "completeness": {
+                              "type": "string",
+                              "enum": [
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "publishedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "isCorrection": {
+                              "type": "boolean"
+                            },
+                            "correctionReason": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "supersededRevisionCount": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "revisionNo",
+                            "publicationKind",
+                            "completeness",
+                            "publishedAt",
+                            "isCorrection",
+                            "correctionReason",
+                            "supersededRevisionCount"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "firstPrize": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "categoryCode": {
+                              "type": "string",
+                              "pattern": "^[A-Z0-9_]{1,32}$"
+                            },
+                            "label": {
+                              "type": "object",
+                              "properties": {
+                                "en": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "ml": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "en",
+                                "ml"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "MISSING",
+                                "PARTIAL",
+                                "COMPLETE"
+                              ]
+                            },
+                            "amountMinor": {
+                              "nullable": true,
+                              "type": "string",
+                              "pattern": "^\\d{1,18}$"
+                            },
+                            "currency": {
+                              "type": "string",
+                              "enum": [
+                                "INR"
+                              ]
+                            },
+                            "entries": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "series": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{0,8}$"
+                                  },
+                                  "number": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,12}$"
+                                  }
+                                },
+                                "required": [
+                                  "series",
+                                  "number"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "categoryCode",
+                            "label",
+                            "state",
+                            "amountMinor",
+                            "currency",
+                            "entries"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lotteryId",
+                        "lotteryCode",
+                        "lotterySlug",
+                        "lotteryName",
+                        "drawCode",
+                        "scheduledDate",
+                        "actualDate",
+                        "displayDate",
+                        "scheduledAt",
+                        "actualAt",
+                        "phase",
+                        "visibility",
+                        "publicationStatus",
+                        "currentRevision",
+                        "firstPrize"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "revision": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "revisionNo": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "publicationKind": {
+                          "type": "string",
+                          "enum": [
+                            "INITIAL",
+                            "UPDATE",
+                            "CORRECTION"
+                          ]
+                        },
+                        "completeness": {
+                          "type": "string",
+                          "enum": [
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        },
+                        "publishedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "isCorrection": {
+                          "type": "boolean"
+                        },
+                        "correctionReason": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "supersededRevisionCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revisionNo",
+                        "publicationKind",
+                        "completeness",
+                        "publishedAt",
+                        "isCorrection",
+                        "correctionReason",
+                        "supersededRevisionCount"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "rule": {
+                      "type": "object",
+                      "properties": {
+                        "ruleVersionId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "ruleVersion": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "DRAFT",
+                            "APPROVED",
+                            "REVOKED"
+                          ]
+                        },
+                        "numberLength": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 12
+                        },
+                        "allowedSeries": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "ruleVersionId",
+                        "ruleVersion",
+                        "state",
+                        "numberLength",
+                        "allowedSeries"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "checking": {
+                      "type": "object",
+                      "properties": {
+                        "capability": {
+                          "type": "string",
+                          "enum": [
+                            "SUPPORTED",
+                            "UNSUPPORTED",
+                            "NOT_APPLICABLE"
+                          ]
+                        },
+                        "ruleVersionId": {
+                          "nullable": true,
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "reasonCode": {
+                          "nullable": true,
+                          "type": "string",
+                          "enum": [
+                            "NO_PUBLISHED_RESULT",
+                            "RESULT_SUSPENDED",
+                            "DRAW_CANCELLED",
+                            "RULE_NOT_APPROVED",
+                            "RULE_REVOKED",
+                            "RULE_NOT_COMPILABLE",
+                            "CHECKER_NOT_AVAILABLE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "capability",
+                        "ruleVersionId",
+                        "reasonCode"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "OFFICIAL_DOCUMENT",
+                              "MANUAL_TRANSCRIPTION",
+                              "SYNTHETIC_FIXTURE"
+                            ]
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "url": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "reviewedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "title",
+                          "url",
+                          "reviewedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "pattern": "^[A-Z0-9_]{1,32}$"
+                          },
+                          "label": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "ml": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "ml"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "priority": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          "metricRole": {
+                            "type": "string",
+                            "enum": [
+                              "FIRST_PRIZE",
+                              "OTHER"
+                            ]
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "MISSING",
+                              "PARTIAL",
+                              "COMPLETE"
+                            ]
+                          },
+                          "amountMinor": {
+                            "nullable": true,
+                            "type": "string",
+                            "pattern": "^\\d{1,18}$"
+                          },
+                          "currency": {
+                            "type": "string",
+                            "enum": [
+                              "INR"
+                            ]
+                          },
+                          "match": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "FULL_NUMBER"
+                                    ]
+                                  },
+                                  "seriesPolicy": {
+                                    "type": "string",
+                                    "enum": [
+                                      "MATCH_ENTRY",
+                                      "EXCEPT_ENTRY",
+                                      "ANY_ALLOWED"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "seriesPolicy"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "SUFFIX"
+                                    ]
+                                  },
+                                  "seriesPolicy": {
+                                    "type": "string",
+                                    "enum": [
+                                      "ANY_ALLOWED"
+                                    ]
+                                  },
+                                  "suffixLength": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 12
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "seriesPolicy",
+                                  "suffixLength"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "expectedEntryCount": {
+                            "nullable": true,
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "entryCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "sourceReviewedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "label",
+                          "priority",
+                          "metricRole",
+                          "state",
+                          "amountMinor",
+                          "currency",
+                          "match",
+                          "expectedEntryCount",
+                          "entryCount",
+                          "sourceReviewedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "categoryCode": {
+                            "type": "string",
+                            "pattern": "^[A-Z0-9_]{1,32}$"
+                          },
+                          "page": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          "pageSize": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                          },
+                          "total": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "series": {
+                                  "type": "string",
+                                  "pattern": "^[A-Z]{0,8}$"
+                                },
+                                "number": {
+                                  "type": "string",
+                                  "pattern": "^[0-9]{1,12}$"
+                                }
+                              },
+                              "required": [
+                                "series",
+                                "number"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "categoryCode",
+                          "page",
+                          "pageSize",
+                          "total",
+                          "items"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "dataMode",
+                    "draw",
+                    "revision",
+                    "rule",
+                    "checking",
+                    "sources",
+                    "categories",
+                    "entries"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "healthLive",
+        "summary": "Process liveness; no external dependencies",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "healthReady",
+        "summary": "Readiness: database, migrations and data-mode agreement",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "fail"
+                      ]
+                    },
+                    "dataMode": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "fail"
+                          ]
+                        },
+                        "migrations": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "pending",
+                            "fail"
+                          ]
+                        },
+                        "dataMode": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "mismatch",
+                            "uninitialized",
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "database",
+                        "migrations",
+                        "dataMode"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "dataMode",
+                    "checks"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Failure reported with the same body schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "fail"
+                      ]
+                    },
+                    "dataMode": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "demo",
+                        "live"
+                      ]
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "fail"
+                          ]
+                        },
+                        "migrations": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "pending",
+                            "fail"
+                          ]
+                        },
+                        "dataMode": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "mismatch",
+                            "uninitialized",
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "database",
+                        "migrations",
+                        "dataMode"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "dataMode",
+                    "checks"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "INVALID_INPUT",
+                  "INVALID_SERIES",
+                  "INVALID_NUMBER_LENGTH",
+                  "DRAW_MISMATCH",
+                  "DRAW_NOT_FOUND",
+                  "LOTTERY_NOT_FOUND",
+                  "CATEGORY_NOT_FOUND",
+                  "RESULT_NOT_PUBLISHED",
+                  "RESULT_SUSPENDED",
+                  "RESULT_CHANGED",
+                  "REVISION_CONFLICT",
+                  "IDEMPOTENCY_CONFLICT",
+                  "UNAUTHENTICATED",
+                  "FORBIDDEN",
+                  "CSRF_FAILED",
+                  "IMPORT_TOO_LARGE",
+                  "RATE_LIMITED",
+                  "NOT_FOUND",
+                  "RESULT_UNAVAILABLE",
+                  "SERVICE_UNAVAILABLE",
+                  "INTERNAL_ERROR"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "code"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "requestId"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BhagyaRekha">
+  <circle cx="32" cy="32" r="30" fill="#087F75"/>
+  <path d="M20 44 C24 30 34 22 46 18 C44 32 36 42 22 46 Z" fill="#F5F8FA"/>
+  <path d="M22 44 C28 36 36 28 44 21" stroke="#087F75" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,33 @@
+{
+  "name": "@bhagyarekha/domain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pure TypeScript rule compiler, matching and descriptive-statistics functions. No framework, database, network or browser imports.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bhagyarekha/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "5.0.1"
+  }
+}

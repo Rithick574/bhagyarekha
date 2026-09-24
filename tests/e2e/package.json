@@ -1,0 +1,23 @@
+{
+  "name": "@bhagyarekha/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright end-to-end, responsive screenshot and accessibility checks",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "screenshots": "playwright test --project=screenshots",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint tests playwright.config.ts",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.4",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.1"
+  }
+}

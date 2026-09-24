@@ -1,0 +1,26 @@
+# Local development PostgreSQL for BhagyaRekha.
+# Host port defaults to 5434 to avoid clashing with a Postgres already on 5432.
+#   pnpm db:up      (docker compose -f infra/docker-compose.yml up -d)
+#   pnpm db:down
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: bhagyarekha-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bhagyarekha
+      POSTGRES_PASSWORD: bhagyarekha_local
+      POSTGRES_DB: bhagyarekha_demo
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - bhagyarekha-pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bhagyarekha -d bhagyarekha_demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  bhagyarekha-pgdata:

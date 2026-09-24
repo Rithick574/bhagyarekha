@@ -1,0 +1,31 @@
+{
+  "name": "bhagyarekha",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BhagyaRekha / \u0d2d\u0d3e\u0d17\u0d4d\u0d2f\u0d30\u0d47\u0d16 \u2014 independent Kerala lottery results and historical statistics (workspace root)",
+  "packageManager": "pnpm@9.7.0",
+  "engines": {
+    "node": ">=22.12.0 <23",
+    "pnpm": ">=9.7.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --filter './packages/**' run build && pnpm -r --parallel --filter @bhagyarekha/api --filter @bhagyarekha/web run dev",
+    "build": "pnpm -r --filter './packages/**' run build && pnpm -r --filter './apps/**' run build",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "test:integration": "pnpm --filter @bhagyarekha/api run test:integration",
+    "test:e2e": "pnpm --filter @bhagyarekha/e2e run test",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "db:down": "docker compose -f infra/docker-compose.yml down",
+    "db:migrate": "pnpm --filter @bhagyarekha/api run db:migrate",
+    "env:init": "pnpm --filter @bhagyarekha/api run env:init",
+    "seed:demo": "pnpm --filter @bhagyarekha/api run seed:demo",
+    "admin:create": "pnpm --filter @bhagyarekha/api run admin:create",
+    "contracts:check": "pnpm --filter @bhagyarekha/contracts run openapi:check",
+    "build:packages": "pnpm -r --filter './packages/**' run build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
