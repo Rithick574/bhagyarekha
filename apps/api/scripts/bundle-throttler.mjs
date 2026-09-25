@@ -1,10 +1,13 @@
-import { mkdir } from 'node:fs/promises';
+import { copyFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outfile = join(apiRoot, 'dist/vendor/throttler.js');
+// Vercel runs apps/api/src/app.module.js, so the relative import is src/vendor/throttler.js.
+// tsc emits dist/app.module.js, which resolves the same import under dist/vendor.
+const outfile = join(apiRoot, 'src/vendor/throttler.js');
+const distOutfile = join(apiRoot, 'dist/vendor/throttler.js');
 
 await mkdir(dirname(outfile), { recursive: true });
 
@@ -41,3 +44,6 @@ export const ThrottlerGuard = __throttlerNs.ThrottlerGuard;
 export const ThrottlerModule = __throttlerNs.ThrottlerModule;`,
   },
 });
+
+await mkdir(dirname(distOutfile), { recursive: true });
+await copyFile(outfile, distOutfile);
