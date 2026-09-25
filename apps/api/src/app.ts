@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import type { IncomingMessage } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { RequestHandler } from 'express';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmetModule from 'helmet';
@@ -11,6 +11,8 @@ const helmet = helmetModule as unknown as (options?: {
   contentSecurityPolicy?: { directives?: Record<string, null | Iterable<string>> };
   crossOriginResourcePolicy?: { policy?: 'same-origin' | 'same-site' | 'cross-origin' };
 }) => RequestHandler;
+import { loadDotEnv } from './config/dotenv.js';
+import { loadEnv } from './config/env.js';
 import { AppModule, type AppModuleOptions } from './app.module.js';
 import { ApiExceptionFilter } from './common/api-exception.filter.js';
 import { type AppLogger, PinoNestLogger, createLogger, requestLogMiddleware } from './common/logger.js';
@@ -63,4 +65,29 @@ export async function createApp(options: CreateAppOptions): Promise<{ app: NestE
 
   await app.init();
   return { app, logger };
+}
+
+type NodeListener = (req: IncomingMessage, res: ServerResponse) => void;
+
+let expressApp: Promise<NodeListener> | undefined;
+
+function nestExpressApp(): Promise<NodeListener> {
+  expressApp ??= createApp({ env: loadEnv() })
+    .then(({ app }) => app.getHttpAdapter().getInstance() as unknown as NodeListener)
+    .catch((error: unknown) => {
+      expressApp = undefined;
+      throw error;
+    });
+  return expressApp;
+}
+
+/**
+ * Vercel treats this module as the function entry and requires a default export
+ * that is a request handler or an HTTP server. Local `main.ts` still calls listen().
+ * The Nest app is created on the first request, not when tests import createApp.
+ */
+export default async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  loadDotEnv();
+  const handle = await nestExpressApp();
+  handle(req, res);
 }
