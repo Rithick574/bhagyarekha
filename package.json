@@ -13,6 +13,7 @@
     "build": "pnpm -r --filter './packages/**' run build && pnpm -r --filter './apps/**' run build",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
+    "typecheck:build": "pnpm --filter @bhagyarekha/api run build && pnpm --filter @bhagyarekha/web exec tsc -p tsconfig.json --noEmit --pretty false --incremental false",
     "test": "pnpm -r --filter '!@bhagyarekha/e2e' run test",
     "test:integration": "pnpm --filter @bhagyarekha/api run test:integration",
     "test:e2e": "pnpm --filter @bhagyarekha/e2e run test",

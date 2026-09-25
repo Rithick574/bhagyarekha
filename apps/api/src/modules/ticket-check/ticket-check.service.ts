@@ -38,7 +38,7 @@ export class TicketCheckService {
   async check(request: TicketCheckRequest): Promise<TicketCheckResponse> {
     // Step 1: envelope-level normalisation before touching the database.
     const normalized = normalizeTicketInput({ series: request.series, number: request.number });
-    if (!normalized.ok) throw fieldError(normalized.errors);
+    if ('errors' in normalized) throw fieldError(normalized.errors);
     const ticket = normalized.ticket;
 
     return withReadSnapshot(this.dataSource, async (m) => {
@@ -93,7 +93,7 @@ export class TicketCheckService {
 
       // Step 5: ticket domain against THIS revision's rule.
       const domain = validateTicketDomain(compiled, ticket);
-      if (!domain.ok) throw fieldError(domain.errors);
+      if ('errors' in domain) throw fieldError(domain.errors);
 
       // Step 6: bounded entry lookup — only rows that could match this ticket.
       const entries = await this.repo.findEntriesByNumbers(m, revision.id, candidateNumbers(compiled, ticket));
@@ -107,7 +107,7 @@ export class TicketCheckService {
         })),
       };
       const evaluated = evaluateTicket(compiled, snapshot, ticket);
-      if (!evaluated.ok) throw ApiError.unavailable('RESULT_UNAVAILABLE', `Result integrity check failed: ${evaluated.integrity}`);
+      if ('integrity' in evaluated) throw ApiError.unavailable('RESULT_UNAVAILABLE', `Result integrity check failed: ${evaluated.integrity}`);
       const { evaluation } = evaluated;
 
       return base(evaluation.outcome, {

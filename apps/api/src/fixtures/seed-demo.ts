@@ -51,7 +51,7 @@ export async function seedDemo(dataSource: DataSource, options: SeedOptions): Pr
   const fixtures = options.fixtures ?? demoFixtures;
   for (const rule of fixtures.ruleVersions) {
     const compiled = compileRuleSet(rule.ruleSet);
-    if (!compiled.ok) {
+    if ('errors' in compiled) {
       throw new Error(`Fixture rule set ${rule.ruleSet.lotteryCode} v${rule.ruleSet.ruleVersion} does not compile: ${compiled.errors.map((e) => e.code).join(', ')}`);
     }
   }

@@ -42,7 +42,7 @@ export class RuleLoaderService {
     });
     if (!parsed.success) return { version, categories, ruleSet: null, compiled: null };
     const compiled = compileRuleSet(parsed.data);
-    return { version, categories, ruleSet: parsed.data, compiled: compiled.ok ? compiled.compiled : null };
+    return { version, categories, ruleSet: parsed.data, compiled: 'compiled' in compiled ? compiled.compiled : null };
   }
 
   /** Latest APPROVED rule version of a lottery, for form hints only. */
