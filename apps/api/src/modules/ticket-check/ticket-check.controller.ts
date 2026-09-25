@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import { TicketCheckRequestSchema, type TicketCheckRequest, type TicketCheckResponse } from '@bhagyarekha/contracts';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import { TicketCheckService } from './ticket-check.service.js';

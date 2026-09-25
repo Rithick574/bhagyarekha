@@ -1,6 +1,6 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from './vendor/throttler.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import type { Clock } from './common/clock.js';
 import { ConfigModule } from './config/config.module.js';

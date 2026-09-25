@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import type { HealthLiveResponse, HealthReadyResponse } from '@bhagyarekha/contracts';
 import type { Response } from 'express';
 import { HealthService } from './health.service.js';

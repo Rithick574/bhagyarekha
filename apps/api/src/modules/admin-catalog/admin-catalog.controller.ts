@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import {
   AdminDrawListQuerySchema,
   ApproveRuleRequestSchema,

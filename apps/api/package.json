@@ -5,18 +5,18 @@
   "description": "BhagyaRekha NestJS API — modular monolith over PostgreSQL",
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter \"@bhagyarekha/api^...\" run build && tsc -p tsconfig.build.json",
-    "dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node --enable-source-maps dist/main.js\"",
+    "build": "pnpm --filter \"@bhagyarekha/api^...\" run build && tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs",
+    "dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node scripts/bundle-throttler.mjs && node --enable-source-maps dist/main.js\"",
     "start": "node --enable-source-maps dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src test",
     "test": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
-    "db:migrate": "tsc -p tsconfig.build.json && node dist/cli/migrate.js",
-    "db:migrate:status": "tsc -p tsconfig.build.json && node dist/cli/migrate.js --status",
-    "env:init": "tsc -p tsconfig.build.json && node dist/cli/env-init.js",
-    "seed:demo": "tsc -p tsconfig.build.json && node dist/cli/seed-demo.js",
-    "admin:create": "tsc -p tsconfig.build.json && node dist/cli/admin-create.js"
+    "db:migrate": "tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs && node dist/cli/migrate.js",
+    "db:migrate:status": "tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs && node dist/cli/migrate.js --status",
+    "env:init": "tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs && node dist/cli/env-init.js",
+    "seed:demo": "tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs && node dist/cli/seed-demo.js",
+    "admin:create": "tsc -p tsconfig.build.json && node scripts/bundle-throttler.mjs && node dist/cli/admin-create.js"
   },
   "dependencies": {
     "@bhagyarekha/contracts": "workspace:*",
@@ -41,6 +41,7 @@
     "@types/express": "5.0.6",
     "@types/node": "22.20.4",
     "@types/supertest": "7.2.1",
+    "esbuild": "0.28.2",
     "eslint": "9.39.5",
     "supertest": "7.3.0",
     "tsc-watch": "7.2.1",

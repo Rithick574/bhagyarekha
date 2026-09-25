@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import {
   DrawIdParamsSchema,
   DrawListQuerySchema,

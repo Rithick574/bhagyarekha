@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import { ImportPreviewQuerySchema, ImportRequestSchema, UuidSchema, type AdminRevision, type ImportPreview, type ImportRequest } from '@bhagyarekha/contracts';
 import type { Request } from 'express';
 import { z } from 'zod';

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from '../../vendor/throttler.js';
 import { LoginRequestSchema, type LoginRequest, type SessionResponse } from '@bhagyarekha/contracts';
 import type { Request, Response } from 'express';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
