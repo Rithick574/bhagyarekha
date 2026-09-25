@@ -14,6 +14,7 @@ import {
   ResultQuerySchema,
   ResultResponseSchema,
 } from './public.js';
+import { HistorySearchRequestSchema, HistorySearchResponseSchema, StatisticsQuerySchema, StatisticsResponseSchema } from './history-stats.js';
 import { TicketCheckRequestSchema, TicketCheckResponseSchema } from './ticket-check.js';
 
 export const API_PREFIX = '/api/v1';
@@ -93,6 +94,24 @@ export const publicRoutes = {
     body: TicketCheckRequestSchema,
     response: TicketCheckResponseSchema,
     errorStatuses: [400, 404, 409, 429, 503],
+    cache: 'no-store',
+  },
+  historySearch: {
+    method: 'POST',
+    path: '/history/search',
+    summary: 'Search published numbers by full number or suffix within a bounded range. Non-persistent; the number is never logged.',
+    body: HistorySearchRequestSchema,
+    response: HistorySearchResponseSchema,
+    errorStatuses: [400, 429, 503],
+    cache: 'no-store',
+  },
+  statistics: {
+    method: 'GET',
+    path: '/statistics',
+    summary: 'Descriptive first-prize statistics for one lottery and period with explicit scope and exclusions. Not predictive.',
+    query: StatisticsQuerySchema,
+    response: StatisticsResponseSchema,
+    errorStatuses: [400, 404, 429, 503],
     cache: 'no-store',
   },
   healthLive: {

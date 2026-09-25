@@ -17,6 +17,7 @@ export interface DrawPageFilter {
   lotteryId?: string;
   from?: string;
   to?: string;
+  drawCode?: string;
   page: number;
   pageSize: number;
 }
@@ -43,6 +44,7 @@ export class ResultsRepository {
     if (filter.lotteryId) qb.andWhere('d.lottery_id = :lotteryId', { lotteryId: filter.lotteryId });
     if (filter.from) qb.andWhere(`${DISPLAY_DATE} >= :from`, { from: filter.from });
     if (filter.to) qb.andWhere(`${DISPLAY_DATE} <= :to`, { to: filter.to });
+    if (filter.drawCode) qb.andWhere('LOWER(d.draw_code) = LOWER(:drawCode)', { drawCode: filter.drawCode });
     const total = await qb.getCount();
     const draws = await qb
       .orderBy(DISPLAY_DATE, 'DESC')

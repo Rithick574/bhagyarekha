@@ -17,6 +17,8 @@ export const EnvSchema = z.object({
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(120),
   /** Requests per minute per client for POST /ticket-check (LLD §7.2 proposes 30). */
   RATE_LIMIT_CHECK_PER_MINUTE: z.coerce.number().int().min(1).default(30),
+  /** Requests per minute per client for GET /statistics (LLD §7.2 proposes 10). */
+  RATE_LIMIT_STATS_PER_MINUTE: z.coerce.number().int().min(1).default(10),
   /** Single-operator deployments may allow the creator of a revision to review it. Recorded on every such publication. */
   ALLOW_SELF_REVIEW: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
   SESSION_IDLE_MINUTES: z.coerce.number().int().min(5).max(24 * 60).default(30),

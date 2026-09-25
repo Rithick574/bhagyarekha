@@ -40,6 +40,21 @@ have **not** been reviewed by a native speaker. The outcome wording is legally s
 (it must never read as a claim confirmation or a definitive "no prize" for incomplete
 results); a reviewer should check those meanings, not only grammar.
 
+## Stage 4 additions (history and statistics)
+
+`ml.ts` gained the `history.*` section (filters, list headings, empty/coverage notices, and the
+`history.search.*` number-search form, statuses and result columns) and the `statistics.*`
+section (filters, scope panel, exclusion-reason labels, the non-predictive notice, every metric
+heading and caption, stat tiles, and error notices). The `placeholder.*` section was removed
+with the placeholder pages. All new strings were machine-drafted by the implementer and are
+**not** reviewed. Review priorities: (1) `statistics.nonPredictive`, `statistics.emptyBody` and
+`history.search.noMatches` / `noMatchesNote` must not read as a probability, a recommendation or a
+“did not win” verdict; (2) `history.emptyBody` and the coverage sentences must keep “a gap in the
+archive is not evidence that no draw took place”; (3) the exclusion-reason labels must stay short
+enough for a two-column table at the Extra-large text size. The `statistics` “How to read this”
+notes are supplied by the API in English and rendered verbatim (marked `lang="en"`); they are not
+translated in release 1.
+
 ## Stage 3 additions (administration)
 
 `ml.ts` gained the `admin.*` section (login, navigation, dashboard, lotteries, rule versions,

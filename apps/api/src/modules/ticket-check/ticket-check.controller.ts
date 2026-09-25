@@ -5,7 +5,7 @@ import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import { TicketCheckService } from './ticket-check.service.js';
 
 /** POST-only so the ticket never appears in a URL, proxy log or browser history. Governed by the stricter 'check' throttler. */
-@SkipThrottle({ default: true })
+@SkipThrottle({ default: true, stats: true })
 @Controller('ticket-check')
 export class TicketCheckController {
   constructor(private readonly service: TicketCheckService) {}

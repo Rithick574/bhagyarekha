@@ -21,7 +21,7 @@ import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import { ResultReadService } from './result-read.service.js';
 
 /** Thin controllers: validate with shared contracts, delegate to the read service. Public reads use the 'default' throttler only. */
-@SkipThrottle({ check: true })
+@SkipThrottle({ check: true, stats: true })
 @Controller()
 export class ResultsController {
   constructor(private readonly reads: ResultReadService) {}

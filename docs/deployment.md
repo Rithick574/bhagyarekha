@@ -26,7 +26,7 @@ See `.env.example`. Production must leave `INSECURE_DEV_COOKIES` unset/false (it
 ## Security posture implemented so far
 
 * Helmet headers, restrictive CORS (single configured origin), 64 kB JSON body limit,
-  in-process rate limiting (`RATE_LIMIT_PER_MINUTE`, default 120; `RATE_LIMIT_CHECK_PER_MINUTE` for ticket checks, default 30), `Cache-Control: no-store` on every API response.
+  in-process rate limiting (`RATE_LIMIT_PER_MINUTE`, default 120; `RATE_LIMIT_CHECK_PER_MINUTE` for ticket checks and history search, default 30; `RATE_LIMIT_STATS_PER_MINUTE` for statistics, default 10), `Cache-Control: no-store` on every API response.
 * Ticket checking is POST-only; inputs are never persisted, logged or echoed, and the browser reaches the API same-origin through a Next.js rewrite.
 * Structured logs without bodies, query values or ticket inputs. Server-generated request IDs.
 * Database immutability triggers on published payloads, approved rules, referenced evidence and the mode marker.
@@ -39,7 +39,7 @@ See `.env.example`. Production must leave `INSECURE_DEV_COOKIES` unset/false (it
 - [x] Admin cookie sessions, CSRF/Origin checks, login throttling (Stage 3)
 - [ ] MFA or a restricted access layer in front of `/admin` before public exposure
 - [x] Ticket check endpoint with completeness handling (Stage 2) — rules themselves still synthetic
-- [ ] History and statistics with coverage labels (Stage 4)
+- [x] History and descriptive statistics with scope, exclusions and coverage labels (Stage 4)
 - [ ] PWA shell, offline labelling, accessibility audit at 200% zoom (Stage 5)
 - [ ] Source reproduction/permission review; privacy notice reflecting actual hosting behaviour
 - [ ] Native Malayalam review of all strings

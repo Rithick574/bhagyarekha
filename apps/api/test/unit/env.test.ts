@@ -17,6 +17,7 @@ describe('loadEnv', () => {
     expect(env.TRUST_PROXY_HOPS).toBe(0);
     expect(env.RATE_LIMIT_PER_MINUTE).toBe(120);
     expect(env.RATE_LIMIT_CHECK_PER_MINUTE).toBe(30);
+    expect(env.RATE_LIMIT_STATS_PER_MINUTE).toBe(10);
   });
 
   it('rejects an unknown DATA_MODE and reports key names only', () => {

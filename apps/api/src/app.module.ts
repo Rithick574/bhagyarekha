@@ -7,7 +7,9 @@ import { ConfigModule } from './config/config.module.js';
 import type { Env } from './config/env.js';
 import { buildDataSourceOptions } from './database/data-source.js';
 import { AdminCatalogModule } from './modules/admin-catalog/admin-catalog.module.js';
+import { HistoryModule } from './modules/history/history.module.js';
 import { ImportsModule } from './modules/imports/imports.module.js';
+import { StatisticsModule } from './modules/statistics/statistics.module.js';
 import { PublishingModule } from './modules/publishing/publishing.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
@@ -22,6 +24,7 @@ export interface AppModuleOptions {
   /** Overrides env RATE_LIMIT_PER_MINUTE / RATE_LIMIT_CHECK_PER_MINUTE (tests raise them). */
   rateLimitPerMinute?: number;
   rateLimitCheckPerMinute?: number;
+  rateLimitStatsPerMinute?: number;
 }
 
 @Module({})
@@ -35,6 +38,7 @@ export class AppModule {
         ThrottlerModule.forRoot([
           { name: 'default', ttl: 60_000, limit: options.rateLimitPerMinute ?? options.env.RATE_LIMIT_PER_MINUTE },
           { name: 'check', ttl: 60_000, limit: options.rateLimitCheckPerMinute ?? options.env.RATE_LIMIT_CHECK_PER_MINUTE },
+          { name: 'stats', ttl: 60_000, limit: options.rateLimitStatsPerMinute ?? options.env.RATE_LIMIT_STATS_PER_MINUTE },
         ]),
         DeploymentModeModule,
         AuthModule,
@@ -45,6 +49,8 @@ export class AppModule {
         AdminCatalogModule,
         PublishingModule,
         ImportsModule,
+        HistoryModule,
+        StatisticsModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
     };

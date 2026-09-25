@@ -18,6 +18,7 @@ can display comes from:
 * No inference of prize rules from result tables. Rules are versioned configuration that
   must be approved with reviewed evidence. Unknown rules fail closed (`RULES_UNSUPPORTED`).
 * No back-filled history. A gap in the archive means "no verified record", not "no draw".
+  History lists and statistics label archive coverage as UNKNOWN until a reviewed draw calendar exists.
 
 ## Provenance carried by every public result
 

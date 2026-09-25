@@ -11,7 +11,7 @@ import { clearSessionCookie, cookiePolicy, setSessionCookie } from './cookies.js
 import { CsrfGuard, OriginGuard, SessionGuard } from './guards.js';
 import { clientIp } from './headers.js';
 
-@SkipThrottle({ check: true })
+@SkipThrottle({ check: true, stats: true })
 @Controller('auth')
 export class AuthController {
   constructor(

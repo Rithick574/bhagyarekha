@@ -32,7 +32,7 @@ import { AdminCatalogService } from './admin-catalog.service.js';
 const IdParams = z.strictObject({ id: UuidSchema });
 type IdParams = z.infer<typeof IdParams>;
 
-@SkipThrottle({ check: true })
+@SkipThrottle({ check: true, stats: true })
 @UseGuards(SessionGuard, CsrfGuard, RolesGuard)
 @RequireRole('EDITOR')
 @Controller('admin')

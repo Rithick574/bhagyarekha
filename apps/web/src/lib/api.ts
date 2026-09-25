@@ -9,12 +9,13 @@ import {
   LatestResponseSchema,
   LotteryListResponseSchema,
   ResultResponseSchema,
+  StatisticsResponseSchema,
 } from '@bhagyarekha/contracts';
-import type { DrawDetail, DrawListResponse, HealthReadyResponse, LatestResponse, LotteryListResponse, ResultResponse } from '@bhagyarekha/contracts';
+import type { DrawDetail, DrawListResponse, HealthReadyResponse, LatestResponse, LotteryListResponse, ResultResponse, StatisticsResponse } from '@bhagyarekha/contracts';
 
 export type ApiFailure =
   | { ok: false; kind: 'network' }
-  | { ok: false; kind: 'http'; status: number; code: string | null }
+  | { ok: false; kind: 'http'; status: number; code: string | null; fields: { path: string; code: string }[] }
   | { ok: false; kind: 'invalid-response' };
 export type ApiResult<T> = { ok: true; data: T } | ApiFailure;
 
@@ -47,7 +48,13 @@ async function request<T>(path: string, schema: ZodType<T>, query?: Record<strin
   }
   if (!response.ok) {
     const parsedError = ErrorResponseSchema.safeParse(body);
-    return { ok: false, kind: 'http', status: response.status, code: parsedError.success ? parsedError.data.error.code : null };
+    return {
+      ok: false,
+      kind: 'http',
+      status: response.status,
+      code: parsedError.success ? parsedError.data.error.code : null,
+      fields: parsedError.success ? (parsedError.data.error.fields ?? []) : [],
+    };
   }
   const parsed = schema.safeParse(body);
   if (!parsed.success) return { ok: false, kind: 'invalid-response' };
@@ -62,8 +69,13 @@ export const getLatest = cache((lotteryId?: string): Promise<ApiResult<LatestRes
   return request('/draws/latest', LatestResponseSchema, { lotteryId });
 });
 
-export function listDraws(params: { lotteryId?: string; from?: string; to?: string; page?: number; pageSize?: number } = {}): Promise<ApiResult<DrawListResponse>> {
+export function listDraws(params: { lotteryId?: string; from?: string; to?: string; drawCode?: string; page?: number; pageSize?: number } = {}): Promise<ApiResult<DrawListResponse>> {
   return request('/draws', DrawListResponseSchema, params);
+}
+
+/** Descriptive first-prize statistics for one lottery and bounded period. Never predictive. */
+export function getStatistics(params: { lotteryId: string; from: string; to: string; ruleVersionId?: string }): Promise<ApiResult<StatisticsResponse>> {
+  return request('/statistics', StatisticsResponseSchema, { ...params, metric: 'FIRST_PRIZE' });
 }
 
 export function getDraw(drawId: string): Promise<ApiResult<DrawDetail>> {

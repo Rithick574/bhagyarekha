@@ -1,8 +1,8 @@
 'use client';
 
 import type { ZodType } from 'zod';
-import { API_PREFIX, DrawDetailSchema, DrawListResponseSchema, ErrorResponseSchema, TicketCheckResponseSchema } from '@bhagyarekha/contracts';
-import type { DrawDetail, DrawListResponse, TicketCheckRequest, TicketCheckResponse } from '@bhagyarekha/contracts';
+import { API_PREFIX, DrawDetailSchema, DrawListResponseSchema, ErrorResponseSchema, HistorySearchResponseSchema, TicketCheckResponseSchema } from '@bhagyarekha/contracts';
+import type { DrawDetail, DrawListResponse, HistorySearchRequest, HistorySearchResponse, TicketCheckRequest, TicketCheckResponse } from '@bhagyarekha/contracts';
 
 /**
  * Browser-side API access through the same-origin `/api/v1` rewrite. Responses
@@ -47,6 +47,11 @@ async function clientRequest<T>(path: string, schema: ZodType<T>, init: RequestI
 
 export function checkTicket(body: TicketCheckRequest, signal?: AbortSignal): Promise<ClientResult<TicketCheckResponse>> {
   return clientRequest('/ticket-check', TicketCheckResponseSchema, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }, signal);
+}
+
+/** POST so the searched digits never enter a URL, browser history entry or access log. */
+export function searchHistory(body: HistorySearchRequest, signal?: AbortSignal): Promise<ClientResult<HistorySearchResponse>> {
+  return clientRequest('/history/search', HistorySearchResponseSchema, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }, signal);
 }
 
 export function fetchLotteryDraws(lotteryId: string, signal?: AbortSignal): Promise<ClientResult<DrawListResponse>> {

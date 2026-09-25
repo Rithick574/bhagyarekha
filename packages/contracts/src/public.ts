@@ -180,6 +180,8 @@ export const DrawListQuerySchema = z
     lotteryId: UuidSchema.optional(),
     from: LocalDateSchema.optional(),
     to: LocalDateSchema.optional(),
+    /** Exact draw code (case-insensitive) — the stable identifier printed on the ticket. */
+    drawCode: z.string().trim().regex(/^[A-Za-z0-9_.-]{1,32}$/).optional(),
     page: PageSchema,
     pageSize: PageSizeSchema,
   })

@@ -3,7 +3,7 @@
 Independent Kerala lottery results, ticket comparison and historical-statistics web app.
 **Not an official government application.** No ticket sales, wagers, payments or predictions.
 
-> **Stages 1 (foundation + viewing), 2 (ticket checking) and 3 (admin operations) are implemented.** Everything the demo shows is
+> **Stages 1–4 (foundation + viewing, ticket checking, admin operations, history + statistics) are implemented.** Everything the demo shows is
 > **synthetic sample data**. No live lottery source is integrated. See
 > [docs/data-sources.md](docs/data-sources.md).
 
@@ -80,7 +80,9 @@ docs/               design docs, data-source/rules/deployment notes
   a match is informational, never proof of a valid ticket or an accepted claim.
 * Admin operations (sessions, CSRF, imports with preview, review, atomic publish,
   corrections, suspension, audit) are documented in [docs/admin.md](docs/admin.md).
-* History and statistics are **later stages**; their pages say so instead of showing fake charts.
+* History filters and number search, and descriptive first-prize statistics with explicit scope,
+  exclusions and definitions: see [docs/statistics.md](docs/statistics.md). Statistics are never presented as probabilities.
+* PWA/offline behaviour, hardening and a clean-machine CI run are **Stage 5**.
 * Prize-matching rules in fixtures are invented engine exercises, not Kerala rules.
 * Malayalam strings are machine-drafted and flagged for native review ([docs/translations.md](docs/translations.md)).
 * Production readiness gates are listed in [docs/deployment.md](docs/deployment.md).

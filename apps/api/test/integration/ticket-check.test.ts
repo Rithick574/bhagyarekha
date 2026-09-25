@@ -27,7 +27,7 @@ describe('POST /api/v1/ticket-check (real PostgreSQL, seeded demo)', () => {
     // Capture every log line the app emits so the privacy assertion can inspect them.
     const sink = new Writable({ write(chunk, _enc, cb) { logLines.push(String(chunk)); cb(); } });
     const logger = pino({ level: 'trace' }, sink);
-    ({ app } = await createApp({ env: testEnv({ LOG_LEVEL: 'trace' }), clock: new FixedClock(new Date('2026-09-24T12:00:00Z')), logger, rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 100_000 }));
+    ({ app } = await createApp({ env: testEnv({ LOG_LEVEL: 'trace' }), clock: new FixedClock(new Date('2026-09-24T12:00:00Z')), logger, rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 100_000, rateLimitStatsPerMinute: 100_000 }));
   });
   afterAll(async () => {
     await app?.close();
@@ -129,7 +129,7 @@ describe('POST /api/v1/ticket-check (real PostgreSQL, seeded demo)', () => {
   });
 
   it('applies the stricter check throttler independently of public reads (429 RATE_LIMITED)', async () => {
-    const { app: limited } = await createApp({ env: testEnv(), clock: new FixedClock(new Date('2026-09-24T12:00:00Z')), logger: pino({ level: 'silent' }), rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 2 });
+    const { app: limited } = await createApp({ env: testEnv(), clock: new FixedClock(new Date('2026-09-24T12:00:00Z')), logger: pino({ level: 'silent' }), rateLimitPerMinute: 100_000, rateLimitCheckPerMinute: 2, rateLimitStatsPerMinute: 100_000 });
     try {
       const send = () => request(limited.getHttpServer()).post('/api/v1/ticket-check').set('content-type', 'application/json').send({ ...NILA, series: 'AA', number: '001234' });
       await send().expect(200);
